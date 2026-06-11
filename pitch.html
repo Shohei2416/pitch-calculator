@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コンベアピッチ計算機（自動）</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            padding: 20px; 
+            background-color: #f5f5f7;
+            color: #333;
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        h2 { margin-top: 0; color: #0071e3; font-size: 1.4em; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            background-color: #fff;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        
+        .result-area { 
+            margin-top: 25px; 
+            background-color: #e8f0fe; 
+            padding: 15px; 
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-label { font-size: 0.9em; color: #555; }
+        .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>コンベアピッチ計算</h2>
+
+        <div class="input-group">
+            <label>能力 (個/min):</label>
+            <select id="capacity" onchange="calcPitch()">
+                <option value="0">-- 選択してください --</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>ベルト速度 (m/min):</label>
+            <select id="speed" onchange="calcPitch()">
+                <option value="0">-- 選択してください --</option>
+            </select>
+        </div>
+
+        <div class="result-area">
+            <span class="result-label">計算されたピッチ</span>
+            <span id="ans" class="result">0.0 mm</span>
+        </div>
+    </div>
+
+    <script>
+        // 画面が読み込まれたときに、プルダウンの選択肢を自動作成する
+        window.onload = function() {
+            var capacitySelect = document.getElementById('capacity');
+            var speedSelect = document.getElementById('speed');
+
+            // 能力の選択肢（1〜300）を自動追加
+            for (var i = 1; i <= 300; i++) {
+                var option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                capacitySelect.appendChild(option);
+            }
+
+            // 速度の選択肢（1〜100）を自動追加
+            for (var j = 1; j <= 100; j++) {
+                var option = document.createElement('option');
+                option.value = j;
+                option.textContent = j;
+                speedSelect.appendChild(option);
+            }
+        };
+
+        // 計算処理（値が変わるたびに呼び出される）
+        function calcPitch() {
+            var capacityVal = document.getElementById('capacity').value;
+            var speedVal = document.getElementById('speed').value;
+            
+            var capacity = parseFloat(capacityVal) || 0;
+            var speed = parseFloat(speedVal) || 0;
+            
+            // 能力または速度が選択されていない（0）の場合は計算しない
+            if (capacity <= 0 || speed <= 0) {
+                document.getElementById('ans').textContent = "0.0 mm";
+                return;
+            }
+
+            var pitch = (speed * 1000) / capacity;
+            document.getElementById('ans').textContent = pitch.toFixed(1) + " mm";
+        }
+    </script>
+
+</body>
+</html>
