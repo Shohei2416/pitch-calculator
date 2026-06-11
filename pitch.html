@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>コンベアピッチ計算機（自動）</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
@@ -71,12 +78,10 @@
     </div>
 
     <script>
-        // 画面が読み込まれたときに、プルダウンの選択肢を自動作成する
         window.onload = function() {
             var capacitySelect = document.getElementById('capacity');
             var speedSelect = document.getElementById('speed');
 
-            // 能力の選択肢（1〜300）を自動追加
             for (var i = 1; i <= 300; i++) {
                 var option = document.createElement('option');
                 option.value = i;
@@ -84,7 +89,6 @@
                 capacitySelect.appendChild(option);
             }
 
-            // 速度の選択肢（1〜100）を自動追加
             for (var j = 1; j <= 100; j++) {
                 var option = document.createElement('option');
                 option.value = j;
@@ -93,7 +97,6 @@
             }
         };
 
-        // 計算処理（値が変わるたびに呼び出される）
         function calcPitch() {
             var capacityVal = document.getElementById('capacity').value;
             var speedVal = document.getElementById('speed').value;
@@ -101,7 +104,6 @@
             var capacity = parseFloat(capacityVal) || 0;
             var speed = parseFloat(speedVal) || 0;
             
-            // 能力または速度が選択されていない（0）の場合は計算しない
             if (capacity <= 0 || speed <= 0) {
                 document.getElementById('ans').textContent = "0.0 mm";
                 return;
