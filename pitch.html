@@ -63,15 +63,41 @@
         .input-group { margin-bottom: 15px; }
         label.input-label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         
+        /* 左右ボタンとプルダウンを横並びにするスタイル */
+        .input-row {
+            display: flex;
+            gap: 8px;
+        }
         select { 
-            width: 100%; 
+            flex: 1; 
             padding: 12px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
             font-size: 16px; 
             background-color: #fff;
             box-sizing: border-box;
+            text-align: center;
             cursor: pointer;
+        }
+        
+        /* 調整ボタン（マイナス・プラス）のデザイン */
+        .btn-calc-step {
+            padding: 0 12px;
+            background-color: #e8f0fe;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            min-width: 60px;
+        }
+        .btn-calc-step:active {
+            background-color: #d0e0fc;
         }
         
         .result-area { 
@@ -107,17 +133,29 @@
 
         <div class="input-group" id="group-speed">
             <label class="input-label">ベルト速度 (m/min):</label>
-            <select id="speed" onchange="calculate()"></select>
+            <div class="input-row">
+                <button class="btn-calc-step" onclick="changeValue('speed', -10, 100)">－10</button>
+                <select id="speed" onchange="calculate()"></select>
+                <button class="btn-calc-step" onclick="changeValue('speed', 10, 100)">＋10</button>
+            </div>
         </div>
 
         <div class="input-group" id="group-capacity">
             <label class="input-label">能力 (個/min):</label>
-            <select id="capacity" onchange="calculate()"></select>
+            <div class="input-row">
+                <button class="btn-calc-step" onclick="changeValue('capacity', -10, 300)">－10</button>
+                <select id="capacity" onchange="calculate()"></select>
+                <button class="btn-calc-step" onclick="changeValue('capacity', 10, 300)">＋10</button>
+            </div>
         </div>
 
         <div class="input-group" id="group-pitch" style="display: none;">
             <label class="input-label">ピッチ (mm):</label>
-            <select id="pitch" onchange="calculate()"></select>
+            <div class="input-row">
+                <button class="btn-calc-step" onclick="changeValue('pitch', -100, 1000)">－100</button>
+                <select id="pitch" onchange="calculate()"></select>
+                <button class="btn-calc-step" onclick="changeValue('pitch', 100, 1000)">＋100</button>
+            </div>
         </div>
 
         <div class="result-area">
@@ -158,21 +196,37 @@
                 capacitySelect.appendChild(option);
             }
 
-            // ピッチ (1〜500)
-            for (var k = 1; k <= 500; k++) {
+            // 【修正】ピッチの選択肢を 1〜1000 まで自動生成するように変更
+            for (var k = 1; k <= 1000; k++) {
                 var option = document.createElement('option');
                 option.value = k; option.textContent = k;
                 pitchSelect.appendChild(option);
             }
 
-            // 【修正】ご指定の初期値をセット
-            speedSelect.value = 40;     // ベルト速度の初期値を40に変更
-            capacitySelect.value = 60;  // 能力の初期値を60に変更
-            pitchSelect.value = 200;    // ピッチの初期値は200のまま
+            // 初期状態は未選択
+            speedSelect.value = 0;
+            capacitySelect.value = 0;
+            pitchSelect.value = 0;
 
-            // 初期値が入った状態で最初の計算を行う
             calculate();
         };
+
+        // ボタンを押したときに値を増減させる関数（上限・下限キープ型）
+        function changeValue(id, step, max) {
+            var select = document.getElementById(id);
+            var currentVal = parseInt(select.value) || 0;
+            
+            var nextVal = currentVal + step;
+            
+            if (nextVal > max) {
+                nextVal = max;
+            } else if (nextVal < 0) {
+                nextVal = 0;
+            }
+            
+            select.value = nextVal;
+            calculate();
+        }
 
         // ラジオボタンが切り替わったときの処理
         function switchMode() {
