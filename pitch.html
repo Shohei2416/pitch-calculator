@@ -196,7 +196,7 @@
                 capacitySelect.appendChild(option);
             }
 
-            // 【修正】ピッチの選択肢を 1〜1000 まで自動生成するように変更
+            // ピッチ (1〜1000)
             for (var k = 1; k <= 1000; k++) {
                 var option = document.createElement('option');
                 option.value = k; option.textContent = k;
@@ -284,9 +284,12 @@
             }
         }
 
-        // オフライン動作のための Service Worker 登録処理
+        // 【自動突破対応】オフライン動作のための Service Worker 登録処理
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
+            // 開くたびに現在の時間をパラメータとして付与し、オンライン時のキャッシュを強制上書き
+            var cacheBuster = '?t=' + new Date().getTime();
+            
+            navigator.serviceWorker.register('./sw.js' + cacheBuster)
             .then(function() { console.log('Service Worker 登録成功'); })
             .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
         }
