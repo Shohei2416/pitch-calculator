@@ -216,12 +216,17 @@
                 ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
 
             } else if (mode === 'capacity') {
-                // 【修正】初期状態の表示を「0.0 個/min」に設定
                 if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
                 var resCapacity = (speed * 1000) / pitch;
-                // 【修正】他と揃えて小数点第一位まで表示するように変更
                 ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
             }
+        }
+
+        // 【ここを追加】オフライン動作のための Service Worker 登録処理
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+            .then(function() { console.log('Service Worker 登録成功'); })
+            .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
         }
     </script>
 
