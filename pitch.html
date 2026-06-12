@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>コンベアピッチ計算機（自動）</title>
+    <title>コンベア計算ツール</title>
     
     <link rel="manifest" href="manifest.json">
     
@@ -27,8 +27,41 @@
             margin: 0 auto;
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.4em; text-align: center; }
+        
+        /* ラジオボタンエリアのスタイル */
+        .mode-selector {
+            background-color: #f0f0f2;
+            padding: 6px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .mode-option {
+            flex: 1;
+            text-align: center;
+        }
+        .mode-option input[type="radio"] {
+            display: none;
+        }
+        .mode-option label {
+            display: block;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mode-option input[type="radio"]:checked + label {
+            background-color: #fff;
+            color: #0071e3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        label.input-label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         
         select { 
             width: 100%; 
@@ -48,69 +81,147 @@
             border-radius: 8px;
             text-align: center;
         }
-        .result-label { font-size: 0.9em; color: #555; }
+        .result-label { font-size: 0.9em; color: #555; font-weight: bold; }
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>コンベアピッチ計算</h2>
+        <h2>コンベア計算ツール</h2>
 
-        <div class="input-group">
-            <label>能力 (個/min):</label>
-            <select id="capacity" onchange="calcPitch()">
-                <option value="0">-- 選択してください --</option>
-            </select>
+        <div class="mode-selector">
+            <div class="mode-option">
+                <input type="radio" id="mode1" name="calcMode" value="pitch" checked onchange="switchMode()">
+                <label for="mode1">ピッチ</label>
+            </div>
+            <div class="mode-option">
+                <input type="radio" id="mode2" name="calcMode" value="speed" onchange="switchMode()">
+                <label for="mode2">ベルト速度</label>
+            </div>
+            <div class="mode-option">
+                <input type="radio" id="mode3" name="calcMode" value="capacity" onchange="switchMode()">
+                <label for="mode3">能力</label>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>ベルト速度 (m/min):</label>
-            <select id="speed" onchange="calcPitch()">
-                <option value="0">-- 選択してください --</option>
-            </select>
+        <div class="input-group" id="group-speed">
+            <label class="input-label">ベルト速度 (m/min):</label>
+            <select id="speed" onchange="calculate()"></select>
+        </div>
+
+        <div class="input-group" id="group-capacity">
+            <label class="input-label">能力 (個/min):</label>
+            <select id="capacity" onchange="calculate()"></select>
+        </div>
+
+        <div class="input-group" id="group-pitch" style="display: none;">
+            <label class="input-label">ピッチ (mm):</label>
+            <select id="pitch" onchange="calculate()"></select>
         </div>
 
         <div class="result-area">
-            <span class="result-label">計算されたピッチ</span>
+            <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
         </div>
     </div>
 
     <script>
+        // 画面読み込み時に各プルダウンの選択肢を自動生成
         window.onload = function() {
             var capacitySelect = document.getElementById('capacity');
             var speedSelect = document.getElementById('speed');
+            var pitchSelect = document.getElementById('pitch');
 
+            var createDefaultOption = function() {
+                var opt = document.createElement('option');
+                opt.value = 0;
+                opt.textContent = "-- 選択してください --";
+                return opt;
+            };
+
+            speedSelect.appendChild(createDefaultOption());
+            capacitySelect.appendChild(createDefaultOption());
+            pitchSelect.appendChild(createDefaultOption());
+
+            // ベルト速度 (1〜100)
+            for (var j = 1; j <= 100; j++) {
+                var option = document.createElement('option');
+                option.value = j; option.textContent = j;
+                speedSelect.appendChild(option);
+            }
+
+            // 能力 (1〜300)
             for (var i = 1; i <= 300; i++) {
                 var option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
+                option.value = i; option.textContent = i;
                 capacitySelect.appendChild(option);
             }
 
-            for (var j = 1; j <= 100; j++) {
+            // ピッチ (1〜500)
+            for (var k = 1; k <= 500; k++) {
                 var option = document.createElement('option');
-                option.value = j;
-                option.textContent = j;
-                speedSelect.appendChild(option);
+                option.value = k; option.textContent = k;
+                pitchSelect.appendChild(option);
             }
         };
 
-        function calcPitch() {
-            var capacityVal = document.getElementById('capacity').value;
-            var speedVal = document.getElementById('speed').value;
+        // ラジオボタンが切り替わったときの処理
+        function switchMode() {
+            var mode = document.querySelector('input[name="calcMode"]:checked').value;
             
-            var capacity = parseFloat(capacityVal) || 0;
-            var speed = parseFloat(speedVal) || 0;
-            
-            if (capacity <= 0 || speed <= 0) {
-                document.getElementById('ans').textContent = "0.0 mm";
-                return;
+            var gCapacity = document.getElementById('group-capacity');
+            var gSpeed = document.getElementById('group-speed');
+            var gPitch = document.getElementById('group-pitch');
+            var resLabel = document.getElementById('res-label');
+
+            if (mode === 'pitch') {
+                gSpeed.style.display = 'block';
+                gCapacity.style.display = 'block';
+                gPitch.style.display = 'none';
+                resLabel.textContent = "計算されたピッチ";
+            } else if (mode === 'speed') {
+                gSpeed.style.display = 'none';
+                gCapacity.style.display = 'block';
+                gPitch.style.display = 'block';
+                resLabel.textContent = "計算されたベルト速度";
+            } else if (mode === 'capacity') {
+                gSpeed.style.display = 'block';
+                gCapacity.style.display = 'none';
+                gPitch.style.display = 'block';
+                resLabel.textContent = "計算された能力";
             }
 
-            var pitch = (speed * 1000) / capacity;
-            document.getElementById('ans').textContent = pitch.toFixed(1) + " mm";
+            calculate();
+        }
+
+        // 計算のメイン処理
+        function calculate() {
+            var mode = document.querySelector('input[name="calcMode"]:checked').value;
+            
+            var capacity = parseFloat(document.getElementById('capacity').value) || 0;
+            var speed = parseFloat(document.getElementById('speed').value) || 0;
+            var pitch = parseFloat(document.getElementById('pitch').value) || 0;
+            
+            var ansSpan = document.getElementById('ans');
+
+            if (mode === 'pitch') {
+                if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
+                var resPitch = (speed * 1000) / capacity;
+                ansSpan.textContent = resPitch.toFixed(1) + " mm";
+
+            } else if (mode === 'speed') {
+                if (capacity <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
+                var resSpeed = (capacity * pitch) / 1000;
+                ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
+
+            } else if (mode === 'capacity') {
+                // 【修正】初期状態の表示を「0.0 個/min」に設定
+                if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
+                var resCapacity = (speed * 1000) / pitch;
+                // 【修正】他と揃えて小数点第一位まで表示するように変更
+                ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
+            }
         }
     </script>
 
