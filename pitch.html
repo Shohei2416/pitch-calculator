@@ -164,6 +164,14 @@
                 option.value = k; option.textContent = k;
                 pitchSelect.appendChild(option);
             }
+
+            // 【修正】ご指定の初期値をセット
+            speedSelect.value = 40;     // ベルト速度の初期値を40に変更
+            capacitySelect.value = 60;  // 能力の初期値を60に変更
+            pitchSelect.value = 200;    // ピッチの初期値は200のまま
+
+            // 初期値が入った状態で最初の計算を行う
+            calculate();
         };
 
         // ラジオボタンが切り替わったときの処理
@@ -222,7 +230,7 @@
             }
         }
 
-        // 【ここを追加】オフライン動作のための Service Worker 登録処理
+        // オフライン動作のための Service Worker 登録処理
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
             .then(function() { console.log('Service Worker 登録成功'); })

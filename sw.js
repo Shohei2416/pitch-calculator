@@ -1,5 +1,5 @@
-const CACHE_NAME = 'conveyor-calc-v1';
-// キャッシュ（スマホ内に保存）するファイルの一覧
+// pitch.htmlを修正したら、ここを「v2」「v3」と書き換えてアップロードする
+const CACHE_NAME = 'conveyor-calc-v1'; 
 const ASSETS = [
   './pitch.html',
   './manifest.json',
