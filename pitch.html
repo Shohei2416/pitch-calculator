@@ -93,16 +93,18 @@
             gap: 6px; 
             align-items: center;
         }
+        
+        /* プルダウン自体のスタイル（左詰めにしてパディングで中央寄りに見せる） */
         select { 
             flex: 1; 
             min-width: 0; 
-            padding: 12px 4px; 
+            padding: 12px 0 12px 40px; /* 左側に大きな余白を作って、数字が中央付近から始まるように配置 */
             border: 1px solid #ccc; 
             border-radius: 8px; 
             font-size: 16px; 
             background-color: #fff;
             box-sizing: border-box;
-            text-align: center;
+            text-align: left; /* PC・スマホ共通で左詰めに統一（これでガタつきが100%消えます） */
             cursor: pointer;
         }
         
@@ -200,7 +202,7 @@
             <label class="input-label">ベルト速度 (m/min):</label>
             <div class="input-row">
                 <button class="btn-calc-step" onclick="changeValue('speed', -10, 100)">-10</button>
-                <select id="speed" onchange="calculate()"></select>
+                <select id="speed" onchange="handleSelectChange('speed')"></select>
                 <button class="btn-calc-step" onclick="changeValue('speed', 10, 100)">+10</button>
             </div>
         </div>
@@ -209,7 +211,7 @@
             <label class="input-label">能力 (個/min):</label>
             <div class="input-row">
                 <button class="btn-calc-step" onclick="changeValue('capacity', -10, 300)">-10</button>
-                <select id="capacity" onchange="calculate()"></select>
+                <select id="capacity" onchange="handleSelectChange('capacity')"></select>
                 <button class="btn-calc-step" onclick="changeValue('capacity', 10, 300)">+10</button>
             </div>
         </div>
@@ -218,7 +220,7 @@
             <label class="input-label">製品間隔 (msec):</label>
             <div class="input-row">
                 <button class="btn-calc-step" onclick="changeValue('timeInput', -100, 10000)">-100</button>
-                <select id="timeInput" onchange="calculate()"></select>
+                <select id="timeInput" onchange="handleSelectChange('timeInput')"></select>
                 <button class="btn-calc-step" onclick="changeValue('timeInput', 100, 10000)">+100</button>
             </div>
         </div>
@@ -227,7 +229,7 @@
             <label class="input-label">ピッチ (mm):</label>
             <div class="input-row">
                 <button class="btn-calc-step" onclick="changeValue('pitch', -100, 1000)">-100</button>
-                <select id="pitch" onchange="calculate()"></select>
+                <select id="pitch" onchange="handleSelectChange('pitch')"></select>
                 <button class="btn-calc-step" onclick="changeValue('pitch', 100, 1000)">+100</button>
             </div>
         </div>
@@ -244,6 +246,15 @@
     </div>
 
     <script>
+        // オプション要素を生成する共通ヘルパー関数
+        function createOptionElement(val, isMarked) {
+            var option = document.createElement('option');
+            option.value = val;
+            // 怪しい「㍿」を完全廃止し、マーク付き以外は純粋な数字のみにします
+            option.textContent = isMarked ? val + " ◀" : val;
+            return option;
+        }
+
         window.onload = function() {
             var capacitySelect = document.getElementById('capacity');
             var speedSelect = document.getElementById('speed');
@@ -263,53 +274,36 @@
 
             // ベルト速度 (1〜100)
             for (var j = 1; j <= 100; j++) {
-                var option = document.createElement('option');
-                option.value = j; 
-                if (j === 1 || j % 10 === 0) {
-                    option.textContent = j + " ◀";
-                } else {
-                    option.textContent = j + "  "; // 透明な全角スペースで幅合わせ
-                }
-                speedSelect.appendChild(option);
+                var isMark = (j === 1 || j % 10 === 0);
+                speedSelect.appendChild(createOptionElement(j, isMark));
             }
 
             // 能力 (1〜300)
             for (var i = 1; i <= 300; i++) {
-                var option = document.createElement('option');
-                option.value = i; 
-                if (i === 1 || i % 10 === 0) {
-                    option.textContent = i + " ◀";
-                } else {
-                    option.textContent = i + "  "; // 透明な全角スペースで幅合わせ
-                }
-                capacitySelect.appendChild(option);
+                var isMark = (i === 1 || i % 10 === 0);
+                capacitySelect.appendChild(createOptionElement(i, isMark));
             }
 
             // ピッチ (1〜1000)
             for (var k = 1; k <= 1000; k++) {
-                var option = document.createElement('option');
-                option.value = k; 
-                if (k === 1 || k % 10 === 0) {
-                    option.textContent = k + " ◀";
-                } else {
-                    option.textContent = k + "  "; // 透明な全角スペースで幅合わせ
-                }
-                pitchSelect.appendChild(option);
+                var isMark = (k === 1 || k % 10 === 0);
+                pitchSelect.appendChild(createOptionElement(k, isMark));
             }
 
             // 製品間隔 (50〜5000)
             for (var t = 50; t <= 5000; t += 50) {
-                var option = document.createElement('option');
-                option.value = t; 
-                if (t % 500 === 0) {
-                    option.textContent = t + " ◀";
-                } else {
-                    option.textContent = t + "  "; // 透明な全角スペースで幅合わせ
-                }
-                timeSelect.appendChild(option);
+                var isMark = (t % 500 === 0);
+                timeSelect.appendChild(createOptionElement(t, isMark));
             }
 
             speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
+
+            // フォーカス時・外れた時の挙動（確定時は余計なスペースやマークを完全消去して数字のみにする）
+            ['speed', 'capacity', 'pitch', 'timeInput'].forEach(function(id) {
+                var sel = document.getElementById(id);
+                sel.addEventListener('focus', function() { restoreAllOptions(id); });
+                sel.addEventListener('blur', function() { removeMarkFromSelected(id); });
+            });
 
             var buttons = document.querySelectorAll('.btn-calc-step, .btn-reset');
             buttons.forEach(function(btn) {
@@ -326,8 +320,40 @@
             calculate();
         };
 
+        function handleSelectChange(id) {
+            removeMarkFromSelected(id);
+            calculate();
+        }
+
+        // 選択が確定したら、プルダウン表面の表示からすべてのマークを除去して「完全な数字のみ」にする
+        function removeMarkFromSelected(id) {
+            var select = document.getElementById(id);
+            if (select.selectedIndex > 0) {
+                var selectedOption = select.options[select.selectedIndex];
+                var rawValue = selectedOption.value;
+                selectedOption.textContent = rawValue;
+            }
+        }
+
+        // リストを開いたとき(フォーカス時)に、リスト内のデザイン（◀付き）を綺麗に再構築する
+        function restoreAllOptions(id) {
+            var select = document.getElementById(id);
+            for (var i = 1; i < select.options.length; i++) {
+                var opt = select.options[i];
+                var v = parseInt(opt.value);
+                
+                if (id === 'speed' || id === 'capacity' || id === 'pitch') {
+                    opt.textContent = (v === 1 || v % 10 === 0) ? v + " ◀" : v;
+                } else if (id === 'timeInput') {
+                    opt.textContent = (v % 500 === 0) ? v + " ◀" : v;
+                }
+            }
+        }
+
         function changeValue(id, step, max) {
             var select = document.getElementById(id);
+            restoreAllOptions(id);
+            
             var currentVal = parseInt(select.value) || 0;
             var nextVal = currentVal + step;
             var minLimit = (id === 'timeInput') ? 50 : 0;
@@ -336,6 +362,7 @@
             else if (nextVal < minLimit) { nextVal = minLimit; }
             
             select.value = nextVal;
+            removeMarkFromSelected(id);
             calculate();
         }
 
@@ -344,23 +371,23 @@
             var unit = document.querySelector('input[name="inputUnit"]:checked').value;
 
             if (mode === 'pitch') {
-                document.getElementById('speed').value = 0;
-                document.getElementById('capacity').value = 0;
+                document.getElementById('speed').value = 0; removeMarkFromSelected('speed');
+                document.getElementById('capacity').value = 0; removeMarkFromSelected('capacity');
             } 
             else if (mode === 'speed') {
-                document.getElementById('pitch').value = 0;
+                document.getElementById('pitch').value = 0; removeMarkFromSelected('pitch');
                 if (unit === 'standard') {
-                    document.getElementById('capacity').value = 0;
+                    document.getElementById('capacity').value = 0; removeMarkFromSelected('capacity');
                 } else {
-                    document.getElementById('timeInput').value = 0;
+                    document.getElementById('timeInput').value = 0; removeMarkFromSelected('timeInput');
                 }
             } 
             else if (mode === 'capacity') {
                 if (unit === 'standard') {
-                    document.getElementById('speed').value = 0;
-                    document.getElementById('pitch').value = 0;
+                    document.getElementById('speed').value = 0; removeMarkFromSelected('speed');
+                    document.getElementById('pitch').value = 0; removeMarkFromSelected('pitch');
                 } else {
-                    document.getElementById('timeInput').value = 0;
+                    document.getElementById('timeInput').value = 0; removeMarkFromSelected('timeInput');
                 }
             }
             calculate();
