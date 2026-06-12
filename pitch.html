@@ -261,48 +261,48 @@
             pitchSelect.appendChild(createDefaultOption());
             timeSelect.appendChild(createDefaultOption());
 
-            // ベルト速度 (1〜100) ※10単位と1に★を付与
+            // ベルト速度 (1〜100)
             for (var j = 1; j <= 100; j++) {
                 var option = document.createElement('option');
                 option.value = j; 
                 if (j === 1 || j % 10 === 0) {
-                    option.textContent = "★ " + j;
+                    option.textContent = "--  " + j + "  --";
                 } else {
                     option.textContent = j;
                 }
                 speedSelect.appendChild(option);
             }
 
-            // 能力 (1〜300) ※10単位と1に★を付与
+            // 能力 (1〜300)
             for (var i = 1; i <= 300; i++) {
                 var option = document.createElement('option');
                 option.value = i; 
                 if (i === 1 || i % 10 === 0) {
-                    option.textContent = "★ " + i;
+                    option.textContent = "--  " + i + "  --";
                 } else {
                     option.textContent = i;
                 }
                 capacitySelect.appendChild(option);
             }
 
-            // ピッチ (1〜1000) ※100単位と1に★を付与
+            // ピッチ (1〜1000)
             for (var k = 1; k <= 1000; k++) {
                 var option = document.createElement('option');
                 option.value = k; 
                 if (k === 1 || k % 100 === 0) {
-                    option.textContent = "★ " + k;
+                    option.textContent = "--  " + k + "  --";
                 } else {
                     option.textContent = k;
                 }
                 pitchSelect.appendChild(option);
             }
 
-            // 製品間隔 (50〜5000) ※500単位に★を付与
+            // 製品間隔 (50〜5000)
             for (var t = 50; t <= 5000; t += 50) {
                 var option = document.createElement('option');
                 option.value = t; 
                 if (t % 500 === 0) {
-                    option.textContent = "★ " + t;
+                    option.textContent = "--  " + t + "  --";
                 } else {
                     option.textContent = t;
                 }
