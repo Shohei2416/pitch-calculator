@@ -14,18 +14,18 @@
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
-            padding: 15px 10px; /* スマホ向けに外側の余白を少し狭く */
+            padding: 15px 10px; 
             background-color: #f5f5f7;
             color: #333;
         }
         .card {
             background: #fff;
-            padding: 20px 15px; /* カード内の左右余白を少し詰めて横幅を確保 */
+            padding: 20px 15px; 
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             max-width: 400px;
             margin: 0 auto;
-            box-sizing: border-box; /* 横幅の計算を狂わせない設定 */
+            box-sizing: border-box; 
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
@@ -67,16 +67,16 @@
         /* 左右ボタンとプルダウンを横並びにするスタイル */
         .input-row {
             display: flex;
-            gap: 6px; /* 間隔を少し狭く */
+            gap: 6px; 
             align-items: center;
         }
         select { 
             flex: 1; 
-            min-width: 0; /* 文字あふれでプルダウンが巨大化するのを防ぐ裏技 */
-            padding: 12px 4px; /* 左右の余白を削って文字領域を確保 */
+            min-width: 0; 
+            padding: 12px 4px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
-            font-size: 15px; /* スマホで見やすいジャストサイズ */
+            font-size: 15px; 
             background-color: #fff;
             box-sizing: border-box;
             text-align: center;
@@ -85,17 +85,17 @@
         
         /* 調整ボタン（マイナス・プラス）のデザイン */
         .btn-calc-step {
-            padding: 12px 0; /* 上下のみパディングをとり、横幅はmin-widthに任せる */
+            padding: 12px 0; 
             background-color: #e8f0fe;
             color: #0071e3;
             border: 1px solid #0071e3;
             border-radius: 8px;
-            font-size: 12px; /* スマホで綺麗に収まるサイズ */
+            font-size: 12px; 
             font-weight: bold;
             cursor: pointer;
             text-align: center;
             white-space: nowrap;
-            min-width: 48px; /* はみ出さない限界のコンパクトサイズに調整 */
+            min-width: 48px; 
             box-sizing: border-box;
         }
         .btn-calc-step:active {
@@ -111,6 +111,9 @@
         }
         .result-label { font-size: 0.9em; color: #555; font-weight: bold; }
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
+        
+        /* 追加：時間表示用のすっきりした文字スタイル */
+        .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -163,6 +166,7 @@
         <div class="result-area">
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
+            <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
     </div>
 
@@ -268,21 +272,46 @@
             var pitch = parseFloat(document.getElementById('pitch').value) || 0;
             
             var ansSpan = document.getElementById('ans');
+            var timeAnsSpan = document.getElementById('time-ans');
+
+            // いったん時間表示を非表示にする
+            timeAnsSpan.style.display = 'none';
+            timeAnsSpan.textContent = '';
+
+            // 時間（秒数）を計算して表示する共通関数
+            function displayTimeInterval(capValue) {
+                if (capValue > 0) {
+                    var totalSeconds = 60 / capValue;
+                    var msec = Math.round(totalSeconds * 1000);
+                    var sec = totalSeconds.toFixed(3);
+                    timeAnsSpan.textContent = msec + "msec(" + sec + "sec)";
+                    timeAnsSpan.style.display = 'block';
+                }
+            }
 
             if (mode === 'pitch') {
                 if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
                 var resPitch = (speed * 1000) / capacity;
                 ansSpan.textContent = resPitch.toFixed(1) + " mm";
+                
+                // ピッチモード時は「入力された能力」から時間を出す
+                displayTimeInterval(capacity);
 
             } else if (mode === 'speed') {
                 if (capacity <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
                 var resSpeed = (capacity * pitch) / 1000;
                 ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
+                
+                // ベルト速度モード時は「入力された能力」から時間を出す
+                displayTimeInterval(capacity);
 
             } else if (mode === 'capacity') {
                 if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
                 var resCapacity = (speed * 1000) / pitch;
                 ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
+                
+                // 能力モード時は「計算で導き出された能力」から時間を出す
+                displayTimeInterval(resCapacity);
             }
         }
 
