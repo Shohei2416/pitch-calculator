@@ -441,4 +441,67 @@
             var timeInput = parseFloat(document.getElementById('timeInput').value) || 0;
             
             var ansSpan = document.getElementById('ans');
-            var
+            var timeAnsSpan = document.getElementById('time-ans');
+
+            timeAnsSpan.style.display = 'none';
+
+            if (mode === 'pitch' && (capacity <= 0 || speed <= 0)) {
+                ansSpan.textContent = "0.0 mm"; return;
+            }
+            if (mode === 'speed') {
+                if (unit === 'standard' && capacity <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
+                if (unit === 'msec' && timeInput <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
+            }
+            if (mode === 'capacity' && unit === 'standard' && (speed <= 0 || pitch <= 0)) {
+                ansSpan.textContent = "0.0 個/min"; return;
+            }
+
+            if (mode === 'capacity' && unit === 'msec') {
+                if (timeInput <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
+                var calculatedCapacity = 60 / (timeInput / 1000);
+                ansSpan.textContent = calculatedCapacity.toFixed(1) + " 個/min";
+                displayTimeInterval(calculatedCapacity);
+                return;
+            }
+
+            if (mode === 'speed' && unit === 'msec' && timeInput > 0) {
+                capacity = 60 / (timeInput / 1000);
+            }
+
+            if (mode === 'pitch') {
+                var resPitch = (speed * 1000) / capacity;
+                ansSpan.textContent = resPitch.toFixed(1) + " mm";
+                displayTimeInterval(capacity);
+
+            } else if (mode === 'speed') {
+                var resSpeed = (capacity * pitch) / 1000;
+                ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
+                displayTimeInterval(capacity);
+
+            } else if (mode === 'capacity') {
+                var resCapacity = (speed * 1000) / pitch;
+                ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
+                displayTimeInterval(resCapacity);
+            }
+
+            function displayTimeInterval(capValue) {
+                if (capValue > 0) {
+                    var totalSeconds = 60 / capValue;
+                    var msec = Math.round(totalSeconds * 1000);
+                    var sec = totalSeconds.toFixed(3);
+                    timeAnsSpan.textContent = msec + "msec(" + sec + "sec)";
+                    timeAnsSpan.style.display = 'block';
+                }
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            var cacheBuster = '?t=' + new Date().getTime();
+            navigator.serviceWorker.register('./sw.js' + cacheBuster)
+            .then(function() { console.log('Service Worker 登録成功'); })
+            .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
+        }
+    </script>
+
+</body>
+</html>

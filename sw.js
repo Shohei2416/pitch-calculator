@@ -1,5 +1,5 @@
 // pitch.htmlを修正したら、ここを「v3」「v4」と書き換えてアップロードする
-const CACHE_NAME = 'conveyor-calc-v6'; 
+const CACHE_NAME = 'conveyor-calc-v7'; 
 const ASSETS = [
   './pitch.html',
   './manifest.json',
