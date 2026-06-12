@@ -93,18 +93,16 @@
             gap: 6px; 
             align-items: center;
         }
-        
-        /* プルダウン自体のスタイル（左詰めにしてパディングで中央寄りに見せる） */
         select { 
             flex: 1; 
             min-width: 0; 
-            padding: 12px 0 12px 40px; /* 左側に大きな余白を作って、数字が中央付近から始まるように配置 */
+            padding: 12px 4px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
             font-size: 16px; 
             background-color: #fff;
             box-sizing: border-box;
-            text-align: left; /* PC・スマホ共通で左詰めに統一（これでガタつきが100%消えます） */
+            text-align: center;
             cursor: pointer;
         }
         
@@ -246,15 +244,6 @@
     </div>
 
     <script>
-        // オプション要素を生成する共通ヘルパー関数
-        function createOptionElement(val, isMarked) {
-            var option = document.createElement('option');
-            option.value = val;
-            // 怪しい「㍿」を完全廃止し、マーク付き以外は純粋な数字のみにします
-            option.textContent = isMarked ? val + " ◀" : val;
-            return option;
-        }
-
         window.onload = function() {
             var capacitySelect = document.getElementById('capacity');
             var speedSelect = document.getElementById('speed');
@@ -274,31 +263,39 @@
 
             // ベルト速度 (1〜100)
             for (var j = 1; j <= 100; j++) {
-                var isMark = (j === 1 || j % 10 === 0);
-                speedSelect.appendChild(createOptionElement(j, isMark));
+                var option = document.createElement('option');
+                option.value = j; 
+                option.textContent = (j === 1 || j % 10 === 0) ? j + " ◀" : j;
+                speedSelect.appendChild(option);
             }
 
             // 能力 (1〜300)
             for (var i = 1; i <= 300; i++) {
-                var isMark = (i === 1 || i % 10 === 0);
-                capacitySelect.appendChild(createOptionElement(i, isMark));
+                var option = document.createElement('option');
+                option.value = i; 
+                option.textContent = (i === 1 || i % 10 === 0) ? i + " ◀" : i;
+                capacitySelect.appendChild(option);
             }
 
             // ピッチ (1〜1000)
             for (var k = 1; k <= 1000; k++) {
-                var isMark = (k === 1 || k % 10 === 0);
-                pitchSelect.appendChild(createOptionElement(k, isMark));
+                var option = document.createElement('option');
+                option.value = k; 
+                option.textContent = (k === 1 || k % 10 === 0) ? k + " ◀" : k;
+                pitchSelect.appendChild(option);
             }
 
             // 製品間隔 (50〜5000)
             for (var t = 50; t <= 5000; t += 50) {
-                var isMark = (t % 500 === 0);
-                timeSelect.appendChild(createOptionElement(t, isMark));
+                var option = document.createElement('option');
+                option.value = t; 
+                option.textContent = (t % 500 === 0) ? t + " ◀" : t;
+                timeSelect.appendChild(option);
             }
 
             speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
 
-            // フォーカス時・外れた時の挙動（確定時は余計なスペースやマークを完全消去して数字のみにする）
+            // PC用：選択された瞬間にプルダウン自体のテキストから ◀ を消すためのイベント設定
             ['speed', 'capacity', 'pitch', 'timeInput'].forEach(function(id) {
                 var sel = document.getElementById(id);
                 sel.addEventListener('focus', function() { restoreAllOptions(id); });
@@ -320,39 +317,48 @@
             calculate();
         };
 
+        // プルダウン変更時の共通処理
         function handleSelectChange(id) {
             removeMarkFromSelected(id);
             calculate();
         }
 
-        // 選択が確定したら、プルダウン表面の表示からすべてのマークを除去して「完全な数字のみ」にする
+        // 選択された項目の ◀ マークを画面表示上消す関数
         function removeMarkFromSelected(id) {
             var select = document.getElementById(id);
             if (select.selectedIndex > 0) {
                 var selectedOption = select.options[select.selectedIndex];
-                var rawValue = selectedOption.value;
-                selectedOption.textContent = rawValue;
+                // 末尾の ◀ マークを消去
+                if (selectedOption.textContent.indexOf(' ◀') !== -1) {
+                    selectedOption.textContent = selectedOption.textContent.replace(' ◀', '');
+                }
             }
         }
 
-        // リストを開いたとき(フォーカス時)に、リスト内のデザイン（◀付き）を綺麗に再構築する
+        // リストを再展開したときのために ◀ マークを復元する関数
         function restoreAllOptions(id) {
             var select = document.getElementById(id);
+            var val = parseInt(select.value) || 0;
+            
             for (var i = 1; i < select.options.length; i++) {
                 var opt = select.options[i];
                 var v = parseInt(opt.value);
                 
                 if (id === 'speed' || id === 'capacity' || id === 'pitch') {
-                    opt.textContent = (v === 1 || v % 10 === 0) ? v + " ◀" : v;
+                    if (v === 1 || v % 10 === 0) {
+                        if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; }
+                    }
                 } else if (id === 'timeInput') {
-                    opt.textContent = (v % 500 === 0) ? v + " ◀" : v;
+                    if (v % 500 === 0) {
+                        if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; }
+                    }
                 }
             }
         }
 
         function changeValue(id, step, max) {
             var select = document.getElementById(id);
-            restoreAllOptions(id);
+            restoreAllOptions(id); // 計算前に一度マークを正常化
             
             var currentVal = parseInt(select.value) || 0;
             var nextVal = currentVal + step;
@@ -362,7 +368,7 @@
             else if (nextVal < minLimit) { nextVal = minLimit; }
             
             select.value = nextVal;
-            removeMarkFromSelected(id);
+            removeMarkFromSelected(id); // 変更後に ◀ を隠す
             calculate();
         }
 
@@ -371,23 +377,23 @@
             var unit = document.querySelector('input[name="inputUnit"]:checked').value;
 
             if (mode === 'pitch') {
-                document.getElementById('speed').value = 0; removeMarkFromSelected('speed');
-                document.getElementById('capacity').value = 0; removeMarkFromSelected('capacity');
+                document.getElementById('speed').value = 0; restoreAllOptions('speed');
+                document.getElementById('capacity').value = 0; restoreAllOptions('capacity');
             } 
             else if (mode === 'speed') {
-                document.getElementById('pitch').value = 0; removeMarkFromSelected('pitch');
+                document.getElementById('pitch').value = 0; restoreAllOptions('pitch');
                 if (unit === 'standard') {
-                    document.getElementById('capacity').value = 0; removeMarkFromSelected('capacity');
+                    document.getElementById('capacity').value = 0; restoreAllOptions('capacity');
                 } else {
-                    document.getElementById('timeInput').value = 0; removeMarkFromSelected('timeInput');
+                    document.getElementById('timeInput').value = 0; restoreAllOptions('timeInput');
                 }
             } 
             else if (mode === 'capacity') {
                 if (unit === 'standard') {
-                    document.getElementById('speed').value = 0; removeMarkFromSelected('speed');
-                    document.getElementById('pitch').value = 0; removeMarkFromSelected('pitch');
+                    document.getElementById('speed').value = 0; restoreAllOptions('speed');
+                    document.getElementById('pitch').value = 0; restoreAllOptions('pitch');
                 } else {
-                    document.getElementById('timeInput').value = 0; removeMarkFromSelected('timeInput');
+                    document.getElementById('timeInput').value = 0; restoreAllOptions('timeInput');
                 }
             }
             calculate();
