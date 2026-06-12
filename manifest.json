@@ -1,6 +1,6 @@
 {
-"name": "コンベアピッチ計算",
-"short_name": "ピッチ計算",
+"name": "コンベア能力計算",
+"short_name": "能力計算",
 "start_url": "./pitch.html",
 "display": "standalone",
 "background_color": "#f5f5f7",
