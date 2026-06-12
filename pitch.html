@@ -29,7 +29,7 @@
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
-        /* ラジオボタンエリアのスタイル */
+        /* ラジオボタンエリア（上部モード切り替え）のスタイル */
         .mode-selector {
             background-color: #f0f0f2;
             padding: 4px;
@@ -38,11 +38,22 @@
             justify-content: space-between;
             margin-bottom: 20px;
         }
-        .mode-option {
+        
+        /* ミニタブエリアのスタイル */
+        .unit-tab-selector {
+            display: flex;
+            background-color: #e3e3e6;
+            padding: 2px;
+            border-radius: 6px;
+            max-width: 240px; 
+            margin-bottom: 15px;
+        }
+
+        .mode-option, .tab-option {
             flex: 1;
             text-align: center;
         }
-        .mode-option input[type="radio"] {
+        .mode-option input[type="radio"], .tab-option input[type="radio"] {
             display: none;
         }
         .mode-option label {
@@ -55,7 +66,19 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .mode-option input[type="radio"]:checked + label {
+        /* ミニタブ用のスタイル */
+        .tab-option label {
+            display: block;
+            padding: 6px 4px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mode-option input[type="radio"]:checked + label,
+        .tab-option input[type="radio"]:checked + label {
             background-color: #fff;
             color: #0071e3;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -112,7 +135,6 @@
         .result-label { font-size: 0.9em; color: #555; font-weight: bold; }
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
         
-        /* 追加：時間表示用のすっきりした文字スタイル */
         .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
     </style>
 </head>
@@ -136,6 +158,17 @@
             </div>
         </div>
 
+        <div class="unit-tab-selector" id="unit-tab-area" style="display: none;">
+            <div class="tab-option">
+                <input type="radio" id="unit1" name="inputUnit" value="standard" checked onchange="switchUnit()">
+                <label for="unit1" id="tab-label-std">能力基準</label>
+            </div>
+            <div class="tab-option">
+                <input type="radio" id="unit2" name="inputUnit" value="msec" onchange="switchUnit()">
+                <label for="unit2" id="tab-label-msec">間隔(msec)基準</label>
+            </div>
+        </div>
+
         <div class="input-group" id="group-speed">
             <label class="input-label">ベルト速度 (m/min):</label>
             <div class="input-row">
@@ -151,6 +184,15 @@
                 <button class="btn-calc-step" onclick="changeValue('capacity', -10, 300)">-10</button>
                 <select id="capacity" onchange="calculate()"></select>
                 <button class="btn-calc-step" onclick="changeValue('capacity', 10, 300)">+10</button>
+            </div>
+        </div>
+
+        <div class="input-group" id="group-msec" style="display: none;">
+            <label class="input-label">製品間隔 (msec):</label>
+            <div class="input-row">
+                <button class="btn-calc-step" onclick="changeValue('timeInput', -100, 10000)">-100</button>
+                <select id="timeInput" onchange="calculate()"></select>
+                <button class="btn-calc-step" onclick="changeValue('timeInput', 100, 10000)">+100</button>
             </div>
         </div>
 
@@ -171,114 +213,186 @@
     </div>
 
     <script>
-        // 画面読み込み時に各プルダウンの選択肢を自動生成
         window.onload = function() {
             var capacitySelect = document.getElementById('capacity');
             var speedSelect = document.getElementById('speed');
             var pitchSelect = document.getElementById('pitch');
+            var timeSelect = document.getElementById('timeInput');
 
             var createDefaultOption = function() {
                 var opt = document.createElement('option');
-                opt.value = 0;
-                opt.textContent = "-- 選択してください --";
+                opt.value = 0; opt.textContent = "-- 選択してください --";
                 return opt;
             };
 
             speedSelect.appendChild(createDefaultOption());
             capacitySelect.appendChild(createDefaultOption());
             pitchSelect.appendChild(createDefaultOption());
+            timeSelect.appendChild(createDefaultOption());
 
-            // ベルト速度 (1〜100)
             for (var j = 1; j <= 100; j++) {
                 var option = document.createElement('option');
-                option.value = j; option.textContent = j;
-                speedSelect.appendChild(option);
+                option.value = j; option.textContent = j; speedSelect.appendChild(option);
             }
-
-            // 能力 (1〜300)
             for (var i = 1; i <= 300; i++) {
                 var option = document.createElement('option');
-                option.value = i; option.textContent = i;
-                capacitySelect.appendChild(option);
+                option.value = i; option.textContent = i; capacitySelect.appendChild(option);
             }
-
-            // ピッチ (1〜1000)
             for (var k = 1; k <= 1000; k++) {
                 var option = document.createElement('option');
-                option.value = k; option.textContent = k;
-                pitchSelect.appendChild(option);
+                option.value = k; option.textContent = k; pitchSelect.appendChild(option);
+            }
+            for (var t = 50; t <= 5000; t += 50) {
+                var option = document.createElement('option');
+                option.value = t; option.textContent = t; timeSelect.appendChild(option);
             }
 
-            // 初期状態は未選択
-            speedSelect.value = 0;
-            capacitySelect.value = 0;
-            pitchSelect.value = 0;
-
+            speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
             calculate();
         };
 
-        // ボタンを押したときに値を増減させる関数（上限・下限キープ型）
         function changeValue(id, step, max) {
             var select = document.getElementById(id);
             var currentVal = parseInt(select.value) || 0;
-            
             var nextVal = currentVal + step;
-            
-            if (nextVal > max) {
-                nextVal = max;
-            } else if (nextVal < 0) {
-                nextVal = 0;
-            }
+            var minLimit = (id === 'timeInput') ? 50 : 0;
+
+            if (nextVal > max) { nextVal = max; } 
+            else if (nextVal < minLimit) { nextVal = minLimit; }
             
             select.value = nextVal;
             calculate();
         }
 
-        // ラジオボタンが切り替わったときの処理
         function switchMode() {
             var mode = document.querySelector('input[name="calcMode"]:checked').value;
-            
-            var gCapacity = document.getElementById('group-capacity');
-            var gSpeed = document.getElementById('group-speed');
-            var gPitch = document.getElementById('group-pitch');
+            var tabArea = document.getElementById('unit-tab-area');
+            var tabLabelStd = document.getElementById('tab-label-std');
+            var tabLabelMsec = document.getElementById('tab-label-msec');
             var resLabel = document.getElementById('res-label');
+
+            document.getElementById('unit1').checked = true;
+
+            if (mode === 'pitch') {
+                tabArea.style.display = 'none';
+                resLabel.textContent = "計算されたピッチ";
+            } else if (mode === 'speed') {
+                tabArea.style.display = 'flex';
+                tabLabelStd.textContent = "能力から指定";
+                tabLabelMsec.textContent = "間隔(msec)から指定";
+                resLabel.textContent = "計算されたベルト速度";
+            } else if (mode === 'capacity') {
+                tabArea.style.display = 'flex';
+                tabLabelStd.textContent = "速度・ピッチから";
+                tabLabelMsec.textContent = "間隔(msec)から";
+                resLabel.textContent = "計算された能力";
+            }
+
+            switchUnit();
+        }
+
+        function switchUnit() {
+            var mode = document.querySelector('input[name="calcMode"]:checked').value;
+            var unit = document.querySelector('input[name="inputUnit"]:checked').value;
+            
+            var gSpeed = document.getElementById('group-speed');
+            var gCapacity = document.getElementById('group-capacity');
+            var gMsec = document.getElementById('group-msec');
+            var gPitch = document.getElementById('group-pitch');
+
+            gSpeed.style.display = 'none';
+            gCapacity.style.display = 'none';
+            gMsec.style.display = 'none';
+            gPitch.style.display = 'none';
 
             if (mode === 'pitch') {
                 gSpeed.style.display = 'block';
                 gCapacity.style.display = 'block';
-                gPitch.style.display = 'none';
-                resLabel.textContent = "計算されたピッチ";
-            } else if (mode === 'speed') {
-                gSpeed.style.display = 'none';
-                gCapacity.style.display = 'block';
-                gPitch.style.display = 'block';
-                resLabel.textContent = "計算されたベルト速度";
-            } else if (mode === 'capacity') {
-                gSpeed.style.display = 'block';
-                gCapacity.style.display = 'none';
-                gPitch.style.display = 'block';
-                resLabel.textContent = "計算された能力";
+            } 
+            else if (mode === 'speed') {
+                gPitch.style.display = 'block'; 
+                if (unit === 'standard') {
+                    gCapacity.style.display = 'block'; 
+                } else {
+                    gMsec.style.display = 'block'; 
+                }
+            } 
+            else if (mode === 'capacity') {
+                if (unit === 'standard') {
+                    gSpeed.style.display = 'block'; 
+                    gPitch.style.display = 'block';
+                } else {
+                    gMsec.style.display = 'block'; 
+                }
             }
 
             calculate();
         }
 
-        // 計算のメイン処理
         function calculate() {
             var mode = document.querySelector('input[name="calcMode"]:checked').value;
+            var unit = document.querySelector('input[name="inputUnit"]:checked').value;
             
             var capacity = parseFloat(document.getElementById('capacity').value) || 0;
             var speed = parseFloat(document.getElementById('speed').value) || 0;
             var pitch = parseFloat(document.getElementById('pitch').value) || 0;
+            var timeInput = parseFloat(document.getElementById('timeInput').value) || 0;
             
             var ansSpan = document.getElementById('ans');
             var timeAnsSpan = document.getElementById('time-ans');
 
-            // いったん時間表示を非表示にする
             timeAnsSpan.style.display = 'none';
-            timeAnsSpan.textContent = '';
 
-            // 時間（秒数）を計算して表示する共通関数
+            // ★【バグ修正】切り替えたタブ側の必要入力が「未選択」なら結果を強制クリアする処理
+            if (mode === 'speed') {
+                if (unit === 'standard' && capacity <= 0) {
+                    ansSpan.textContent = "0.0 m/min";
+                    return;
+                }
+                if (unit === 'msec' && timeInput <= 0) {
+                    ansSpan.textContent = "0.0 m/min";
+                    return;
+                }
+            }
+            if (mode === 'capacity' && unit === 'standard' && (speed <= 0 || pitch <= 0)) {
+                ansSpan.textContent = "0.0 個/min";
+                return;
+            }
+
+            // 特殊パターン：能力モード ＆ 間隔msec指定の時
+            if (mode === 'capacity' && unit === 'msec') {
+                if (timeInput <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
+                var calculatedCapacity = 60 / (timeInput / 1000);
+                ansSpan.textContent = calculatedCapacity.toFixed(1) + " 個/min";
+                displayTimeInterval(calculatedCapacity);
+                return;
+            }
+
+            // 特殊パターン：ベルト速度モード ＆ 間隔msec指定の時
+            if (mode === 'speed' && unit === 'msec' && timeInput > 0) {
+                capacity = 60 / (timeInput / 1000);
+            }
+
+            // 通常の計算ロジック
+            if (mode === 'pitch') {
+                if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
+                var resPitch = (speed * 1000) / capacity;
+                ansSpan.textContent = resPitch.toFixed(1) + " mm";
+                displayTimeInterval(capacity);
+
+            } else if (mode === 'speed') {
+                if (capacity <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
+                var resSpeed = (capacity * pitch) / 1000;
+                ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
+                displayTimeInterval(capacity);
+
+            } else if (mode === 'capacity') {
+                if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
+                var resCapacity = (speed * 1000) / pitch;
+                ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
+                displayTimeInterval(resCapacity);
+            }
+
             function displayTimeInterval(capValue) {
                 if (capValue > 0) {
                     var totalSeconds = 60 / capValue;
@@ -288,37 +402,10 @@
                     timeAnsSpan.style.display = 'block';
                 }
             }
-
-            if (mode === 'pitch') {
-                if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
-                var resPitch = (speed * 1000) / capacity;
-                ansSpan.textContent = resPitch.toFixed(1) + " mm";
-                
-                // ピッチモード時は「入力された能力」から時間を出す
-                displayTimeInterval(capacity);
-
-            } else if (mode === 'speed') {
-                if (capacity <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
-                var resSpeed = (capacity * pitch) / 1000;
-                ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
-                
-                // ベルト速度モード時は「入力された能力」から時間を出す
-                displayTimeInterval(capacity);
-
-            } else if (mode === 'capacity') {
-                if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
-                var resCapacity = (speed * 1000) / pitch;
-                ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
-                
-                // 能力モード時は「計算で導き出された能力」から時間を出す
-                displayTimeInterval(resCapacity);
-            }
         }
 
-        // 【自動突破対応】オフライン動作のための Service Worker 登録処理
         if ('serviceWorker' in navigator) {
             var cacheBuster = '?t=' + new Date().getTime();
-            
             navigator.serviceWorker.register('./sw.js' + cacheBuster)
             .then(function() { console.log('Service Worker 登録成功'); })
             .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
