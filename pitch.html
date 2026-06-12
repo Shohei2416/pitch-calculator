@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>コンベア計算ツール</title>
     
     <link rel="manifest" href="manifest.json">
@@ -99,7 +99,7 @@
             padding: 12px 4px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
-            font-size: 15px; 
+            font-size: 16px; /* ★iPhoneでフォーカス時にズームしないよう16px以上に指定 */
             background-color: #fff;
             box-sizing: border-box;
             text-align: center;
@@ -120,6 +120,11 @@
             white-space: nowrap;
             min-width: 48px; 
             box-sizing: border-box;
+            
+            /* ★iPhoneの連打ズームを無効化する魔法のプロパティ */
+            touch-action: manipulation; 
+            -webkit-user-select: none; /* テキスト選択の青いハイライトも防止 */
+            user-select: none;
         }
         .btn-calc-step:active {
             background-color: #d0e0fc;
@@ -248,6 +253,21 @@
             }
 
             speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
+
+            // ★iOSのダブルタップズーム（イベント）をJS側からも完全にブロックする
+            var buttons = document.querySelectorAll('.btn-calc-step');
+            buttons.forEach(function(btn) {
+                btn.addEventListener('touchend', function(e) {
+                    // 前回タップからの時間を計測してダブルタップを検知
+                    var now = new Date().getTime();
+                    var lastTouch = btn.getAttribute('data-last-touch') || 0;
+                    if (now - lastTouch < 300) {
+                        e.preventDefault(); // ズーム動作のみをキャンセル
+                    }
+                    btn.setAttribute('data-last-touch', now);
+                }, { passive: false });
+            });
+
             calculate();
         };
 
@@ -343,23 +363,14 @@
 
             timeAnsSpan.style.display = 'none';
 
-            // ★【バグ修正】切り替えたタブ側の必要入力が「未選択」なら結果を強制クリアする処理
             if (mode === 'speed') {
-                if (unit === 'standard' && capacity <= 0) {
-                    ansSpan.textContent = "0.0 m/min";
-                    return;
-                }
-                if (unit === 'msec' && timeInput <= 0) {
-                    ansSpan.textContent = "0.0 m/min";
-                    return;
-                }
+                if (unit === 'standard' && capacity <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
+                if (unit === 'msec' && timeInput <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
             }
             if (mode === 'capacity' && unit === 'standard' && (speed <= 0 || pitch <= 0)) {
-                ansSpan.textContent = "0.0 個/min";
-                return;
+                ansSpan.textContent = "0.0 個/min"; return;
             }
 
-            // 特殊パターン：能力モード ＆ 間隔msec指定の時
             if (mode === 'capacity' && unit === 'msec') {
                 if (timeInput <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
                 var calculatedCapacity = 60 / (timeInput / 1000);
@@ -368,12 +379,10 @@
                 return;
             }
 
-            // 特殊パターン：ベルト速度モード ＆ 間隔msec指定の時
             if (mode === 'speed' && unit === 'msec' && timeInput > 0) {
                 capacity = 60 / (timeInput / 1000);
             }
 
-            // 通常の計算ロジック
             if (mode === 'pitch') {
                 if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
                 var resPitch = (speed * 1000) / capacity;
