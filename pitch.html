@@ -99,7 +99,7 @@
             padding: 12px 4px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
-            font-size: 16px; /* ★iPhoneでフォーカス時にズームしないよう16px以上に指定 */
+            font-size: 16px; 
             background-color: #fff;
             box-sizing: border-box;
             text-align: center;
@@ -121,17 +121,39 @@
             min-width: 48px; 
             box-sizing: border-box;
             
-            /* ★iPhoneの連打ズームを無効化する魔法のプロパティ */
+            /* iPhoneの連打ズームを無効化 */
             touch-action: manipulation; 
-            -webkit-user-select: none; /* テキスト選択の青いハイライトも防止 */
+            -webkit-user-select: none;
             user-select: none;
         }
         .btn-calc-step:active {
             background-color: #d0e0fc;
         }
+
+        /* リセットボタンのデザイン */
+        .btn-reset-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .btn-reset {
+            background-color: #f2f2f7;
+            color: #ff3b30; 
+            border: 1px solid #d1d1d6;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .btn-reset:active {
+            background-color: #e5e5ea;
+        }
         
         .result-area { 
-            margin-top: 25px; 
+            margin-top: 20px; 
             background-color: #e8f0fe; 
             padding: 15px; 
             border-radius: 8px;
@@ -210,6 +232,10 @@
             </div>
         </div>
 
+        <div class="btn-reset-container">
+            <button class="btn-reset" onclick="resetValues()">値をリセット</button>
+        </div>
+
         <div class="result-area">
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
@@ -235,34 +261,63 @@
             pitchSelect.appendChild(createDefaultOption());
             timeSelect.appendChild(createDefaultOption());
 
+            // ベルト速度 (1〜100) ※10単位と1に★を付与
             for (var j = 1; j <= 100; j++) {
                 var option = document.createElement('option');
-                option.value = j; option.textContent = j; speedSelect.appendChild(option);
+                option.value = j; 
+                if (j === 1 || j % 10 === 0) {
+                    option.textContent = "★ " + j;
+                } else {
+                    option.textContent = j;
+                }
+                speedSelect.appendChild(option);
             }
+
+            // 能力 (1〜300) ※10単位と1に★を付与
             for (var i = 1; i <= 300; i++) {
                 var option = document.createElement('option');
-                option.value = i; option.textContent = i; capacitySelect.appendChild(option);
+                option.value = i; 
+                if (i === 1 || i % 10 === 0) {
+                    option.textContent = "★ " + i;
+                } else {
+                    option.textContent = i;
+                }
+                capacitySelect.appendChild(option);
             }
+
+            // ピッチ (1〜1000) ※100単位と1に★を付与
             for (var k = 1; k <= 1000; k++) {
                 var option = document.createElement('option');
-                option.value = k; option.textContent = k; pitchSelect.appendChild(option);
+                option.value = k; 
+                if (k === 1 || k % 100 === 0) {
+                    option.textContent = "★ " + k;
+                } else {
+                    option.textContent = k;
+                }
+                pitchSelect.appendChild(option);
             }
+
+            // 製品間隔 (50〜5000) ※500単位に★を付与
             for (var t = 50; t <= 5000; t += 50) {
                 var option = document.createElement('option');
-                option.value = t; option.textContent = t; timeSelect.appendChild(option);
+                option.value = t; 
+                if (t % 500 === 0) {
+                    option.textContent = "★ " + t;
+                } else {
+                    option.textContent = t;
+                }
+                timeSelect.appendChild(option);
             }
 
             speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
 
-            // ★iOSのダブルタップズーム（イベント）をJS側からも完全にブロックする
-            var buttons = document.querySelectorAll('.btn-calc-step');
+            var buttons = document.querySelectorAll('.btn-calc-step, .btn-reset');
             buttons.forEach(function(btn) {
                 btn.addEventListener('touchend', function(e) {
-                    // 前回タップからの時間を計測してダブルタップを検知
                     var now = new Date().getTime();
                     var lastTouch = btn.getAttribute('data-last-touch') || 0;
                     if (now - lastTouch < 300) {
-                        e.preventDefault(); // ズーム動作のみをキャンセル
+                        e.preventDefault();
                     }
                     btn.setAttribute('data-last-touch', now);
                 }, { passive: false });
@@ -281,6 +336,33 @@
             else if (nextVal < minLimit) { nextVal = minLimit; }
             
             select.value = nextVal;
+            calculate();
+        }
+
+        function resetValues() {
+            var mode = document.querySelector('input[name="calcMode"]:checked').value;
+            var unit = document.querySelector('input[name="inputUnit"]:checked').value;
+
+            if (mode === 'pitch') {
+                document.getElementById('speed').value = 0;
+                document.getElementById('capacity').value = 0;
+            } 
+            else if (mode === 'speed') {
+                document.getElementById('pitch').value = 0;
+                if (unit === 'standard') {
+                    document.getElementById('capacity').value = 0;
+                } else {
+                    document.getElementById('timeInput').value = 0;
+                }
+            } 
+            else if (mode === 'capacity') {
+                if (unit === 'standard') {
+                    document.getElementById('speed').value = 0;
+                    document.getElementById('pitch').value = 0;
+                } else {
+                    document.getElementById('timeInput').value = 0;
+                }
+            }
             calculate();
         }
 
@@ -363,6 +445,9 @@
 
             timeAnsSpan.style.display = 'none';
 
+            if (mode === 'pitch' && (capacity <= 0 || speed <= 0)) {
+                ansSpan.textContent = "0.0 mm"; return;
+            }
             if (mode === 'speed') {
                 if (unit === 'standard' && capacity <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
                 if (unit === 'msec' && timeInput <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
@@ -384,19 +469,16 @@
             }
 
             if (mode === 'pitch') {
-                if (capacity <= 0 || speed <= 0) { ansSpan.textContent = "0.0 mm"; return; }
                 var resPitch = (speed * 1000) / capacity;
                 ansSpan.textContent = resPitch.toFixed(1) + " mm";
                 displayTimeInterval(capacity);
 
             } else if (mode === 'speed') {
-                if (capacity <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
                 var resSpeed = (capacity * pitch) / 1000;
                 ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
                 displayTimeInterval(capacity);
 
             } else if (mode === 'capacity') {
-                if (speed <= 0 || pitch <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
                 var resCapacity = (speed * 1000) / pitch;
                 ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
                 displayTimeInterval(resCapacity);
