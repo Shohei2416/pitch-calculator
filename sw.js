@@ -1,4 +1,4 @@
-const CACHE_NAME = 'conveyor-calc-v17'; // アップロード時はここを書き換える
+const CACHE_NAME = 'conveyor-calc-v18'; // 必ず前と違うバージョン(v11など)にする
 const ASSETS = [
   './',
   './pitch.html',
@@ -6,18 +6,18 @@ const ASSETS = [
   './icon.png'
 ];
 
-// インストール時に古いキャッシュを待たずに即時アクティブ化する
+// 新しいワーカーがインストールされたら、待機せずにすぐ有効化する
 self.addEventListener('install', function(e) {
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(ASSETS);
     }).then(function() {
-      return self.skipWaiting(); // ← これが「即交代」の命令です！
+      return self.skipWaiting(); // ← これが古いワーカーを即座に退場させる命令です！
     })
   );
 });
 
-// アクティブ化した瞬間に、古いキャッシュを完全に削除して制御を奪う
+// 有効化されたら、即座に現在のページを支配下に置き、古いキャッシュを消す
 self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(keys) {
@@ -29,12 +29,11 @@ self.addEventListener('activate', function(e) {
         })
       );
     }).then(function() {
-      return self.clients.claim(); // ← これで即座に現在のページを新しいSWの支配下に置きます！
+      return self.clients.claim(); // ← これで開いているページを即座に新システムに切り替えます！
     })
   );
 });
 
-// キャッシュがあればそれを返し、なければネットワークから取得
 self.addEventListener('fetch', function(e) {
   e.respondWith(
     caches.match(e.request).then(function(response) {
