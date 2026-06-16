@@ -26,7 +26,7 @@
             max-width: 400px;
             margin: 0 auto;
             box-sizing: border-box; 
-            position: relative; /* バージョン情報を絶対配置するために必要 */
+            position: relative; /* バージョン・クレジット情報を絶対配置するために必要 */
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
@@ -131,7 +131,7 @@
             background-color: #d0e0fc;
         }
 
-        /* リセットボタンのデザイン（元の位置・スタイルに復帰） */
+        /* リセットボタンのデザイン */
         .btn-reset-container {
             margin-top: 20px;
             text-align: right;
@@ -165,7 +165,7 @@
         
         .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
 
-        /* バージョン表示用のスタイル（カードの右下最下部に絶対配置） */
+        /* クレジットとバージョン表示用のスタイル（カードの右下最下部に絶対配置） */
         .version-tag {
             position: absolute;
             right: 15px;
@@ -244,17 +244,20 @@
             </div>
         </div>
 
+        <!-- 値のリセットボタン -->
         <div class="btn-reset-container">
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
         </div>
 
+        <!-- 計算結果表示エリア -->
         <div class="result-area">
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
             <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
 
-        <div class="version-tag">v10.2</div>
+        <!-- クレジット表記とバージョン情報を一番下に配置 -->
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v10.3</div>
     </div>
 
     <script>
