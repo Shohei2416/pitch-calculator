@@ -20,13 +20,13 @@
         }
         .card {
             background: #fff;
-            padding: 20px 15px; 
+            padding: 20px 15px 25px 15px; /* 下部に少し余裕を持たせる */
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             max-width: 400px;
             margin: 0 auto;
             box-sizing: border-box; 
-            position: relative; /* バージョン情報を右下に固定するために必要 */
+            position: relative; /* バージョン情報を絶対配置するために必要 */
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
@@ -131,12 +131,10 @@
             background-color: #d0e0fc;
         }
 
-        /* リセットボタンと下部配置用エリアのデザイン */
-        .footer-container {
+        /* リセットボタンのデザイン（元の位置・スタイルに復帰） */
+        .btn-reset-container {
             margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            text-align: right;
         }
         .btn-reset {
             background-color: #f2f2f7;
@@ -154,15 +152,6 @@
         .btn-reset:active {
             background-color: #e5e5ea;
         }
-
-        /* バージョン表示のスタイル */
-        .version-tag {
-            font-size: 10px;
-            color: #aeaeae;
-            font-family: monospace;
-            user-select: none;
-            padding-bottom: 2px;
-        }
         
         .result-area { 
             margin-top: 20px; 
@@ -175,6 +164,17 @@
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
         
         .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
+
+        /* バージョン表示用のスタイル（カードの右下最下部に絶対配置） */
+        .version-tag {
+            position: absolute;
+            right: 15px;
+            bottom: 6px;
+            font-size: 10px;
+            color: #c7c7cc;
+            font-family: monospace;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -244,9 +244,8 @@
             </div>
         </div>
 
-        <div class="footer-container">
+        <div class="btn-reset-container">
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
-            <div class="version-tag">v10.1</div>
         </div>
 
         <div class="result-area">
@@ -254,6 +253,8 @@
             <span id="ans" class="result">0.0 mm</span>
             <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
+
+        <div class="version-tag">v10.2</div>
     </div>
 
     <script>
