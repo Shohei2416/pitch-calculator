@@ -1,4 +1,4 @@
-const CACHE_NAME = 'conveyor-calc-v14'; // アップロード時はここを書き換える
+const CACHE_NAME = 'conveyor-calc-v17'; // アップロード時はここを書き換える
 const ASSETS = [
   './',
   './pitch.html',
