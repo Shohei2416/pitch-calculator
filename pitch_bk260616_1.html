@@ -110,13 +110,13 @@
         /* パッと現れる手入力用テキストボックスのスタイル */
         .manual-input-container {
             margin-top: 6px;
-            display: none; /* 初期状態は非表示 */
+            display: none; 
             animation: fadeIn 0.2s ease-out;
         }
         input.manual-box {
             width: 100%;
             padding: 10px;
-            border: 1px solid #0071e3; /* 入力中と分かりやすいように青枠に */
+            border: 1px solid #0071e3; 
             border-radius: 6px;
             font-size: 15px;
             text-align: center;
@@ -186,7 +186,7 @@
         
         .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
 
-        /* クレジットとバージョン表示用のスタイル（カードの右下最下部に絶対配置） */
+        /* クレジットとバージョン表示用のスタイル */
         .version-tag {
             position: absolute;
             right: 15px;
@@ -229,6 +229,7 @@
             </div>
         </div>
 
+        <!-- ベルト速度グループ -->
         <div class="input-group" id="group-speed">
             <label class="input-label">ベルト速度 (m/min):</label>
             <div class="input-row">
@@ -241,6 +242,7 @@
             </div>
         </div>
 
+        <!-- 能力グループ -->
         <div class="input-group" id="group-capacity">
             <label class="input-label">能力 (個/min):</label>
             <div class="input-row">
@@ -253,6 +255,7 @@
             </div>
         </div>
 
+        <!-- 製品間隔グループ -->
         <div class="input-group" id="group-msec" style="display: none;">
             <label class="input-label">製品間隔 (msec):</label>
             <div class="input-row">
@@ -265,6 +268,7 @@
             </div>
         </div>
 
+        <!-- ピッチグループ -->
         <div class="input-group" id="group-pitch" style="display: none;">
             <label class="input-label">ピッチ (mm):</label>
             <div class="input-row">
@@ -277,17 +281,20 @@
             </div>
         </div>
 
+        <!-- 値のリセットボタン -->
         <div class="btn-reset-container">
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
         </div>
 
+        <!-- 計算結果表示エリア -->
         <div class="result-area">
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
             <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v10.5</div>
+        <!-- クレジット表記とバージョン情報 -->
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v10.6</div>
     </div>
 
     <script>
@@ -303,7 +310,7 @@
                 selectObj.appendChild(opt0);
                 
                 var optManual = document.createElement('option');
-                optManual.value = "manual"; optManual.textContent = "✍ 自由に入力する (キーボード)";
+                optManual.value = "manual"; optManual.textContent = "➕ 数値を直接指定する";
                 selectObj.appendChild(optManual);
             };
 
@@ -379,10 +386,10 @@
                 if (manualInput.value === "") {
                     manualInput.value = "";
                 }
-                manualInput.focus(); // 手入力エリアにフォーカスを移動
+                manualInput.focus();
             } else {
                 container.style.display = 'none';
-                manualInput.value = ""; // 切り替わったら手入力値をクリア
+                manualInput.value = ""; 
             }
             
             calculate();
@@ -390,7 +397,7 @@
 
         function removeMarkFromSelected(id) {
             var select = document.getElementById(id);
-            if (select.selectedIndex > 1) { // 0:デフォルト, 1:手入力オプションなので2以上
+            if (select.selectedIndex > 1) { 
                 var selectedOption = select.options[select.selectedIndex];
                 if (selectedOption.textContent.indexOf(' ◀') !== -1) {
                     selectedOption.textContent = selectedOption.textContent.replace(' ◀', '');
@@ -416,7 +423,6 @@
             }
         }
 
-        // 現在適用されている入力値を取得する共通関数
         function getInputValue(id) {
             var select = document.getElementById(id);
             if (select.value === 'manual') {
@@ -437,13 +443,10 @@
             else if (nextVal < minLimit) { nextVal = minLimit; }
             
             if (select.value === 'manual') {
-                // 手入力モード中の場合は、テキストボックスの数値を書き換える
                 manualInput.value = nextVal;
             } else {
-                // 通常プルダウンモードの場合は、一番近いセレクト値を探して合わせる（従来の挙動）
                 restoreAllOptions(id);
                 select.value = nextVal;
-                // もしセレクトの選択肢に存在しない数値になった場合は自動的に手入力モードに切り替える親切設計
                 if (select.value === "" || select.value === "0") {
                     select.value = 'manual';
                     document.getElementById('manual-container-' + id).style.display = 'block';
