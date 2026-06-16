@@ -528,12 +528,31 @@
             }
         }
 
+        /* ーーー ここから更新検知・自動リロード処理を追加しました ーーー */
         if ('serviceWorker' in navigator) {
             var cacheBuster = '?t=' + new Date().getTime();
+            
             navigator.serviceWorker.register('./sw.js' + cacheBuster)
-            .then(function() { console.log('Service Worker 登録成功'); })
+            .then(function(reg) { 
+                console.log('Service Worker 登録成功'); 
+                
+                // 新しいバージョン（サービスワーカー）が見つかった場合の処理
+                reg.onupdatefound = function() {
+                    var installingWorker = reg.installing;
+                    installingWorker.onstatechange = function() {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                // 新しいキャッシュのダウンロードが完了したら画面を自動リロード
+                                console.log('最新バージョンを検出しました。画面を自動更新します。');
+                                window.location.reload();
+                            }
+                        }
+                    };
+                };
+            })
             .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
         }
+        /* ーーー ここまで ーーー */
     </script>
 
 </body>
