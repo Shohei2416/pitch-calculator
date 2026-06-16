@@ -26,6 +26,7 @@
             max-width: 400px;
             margin: 0 auto;
             box-sizing: border-box; 
+            position: relative; /* バージョン情報を右下に固定するために必要 */
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
@@ -130,10 +131,12 @@
             background-color: #d0e0fc;
         }
 
-        /* リセットボタンのデザイン */
-        .btn-reset-container {
+        /* リセットボタンと下部配置用エリアのデザイン */
+        .footer-container {
             margin-top: 20px;
-            text-align: right;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
         }
         .btn-reset {
             background-color: #f2f2f7;
@@ -150,6 +153,15 @@
         }
         .btn-reset:active {
             background-color: #e5e5ea;
+        }
+
+        /* バージョン表示のスタイル */
+        .version-tag {
+            font-size: 10px;
+            color: #aeaeae;
+            font-family: monospace;
+            user-select: none;
+            padding-bottom: 2px;
         }
         
         .result-area { 
@@ -232,8 +244,9 @@
             </div>
         </div>
 
-        <div class="btn-reset-container">
+        <div class="footer-container">
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
+            <div class="version-tag">v10.1</div>
         </div>
 
         <div class="result-area">
@@ -295,7 +308,6 @@
 
             speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
 
-            // PC用：選択された瞬間にプルダウン自体のテキストから ◀ を消すためのイベント設定
             ['speed', 'capacity', 'pitch', 'timeInput'].forEach(function(id) {
                 var sel = document.getElementById(id);
                 sel.addEventListener('focus', function() { restoreAllOptions(id); });
@@ -317,25 +329,21 @@
             calculate();
         };
 
-        // プルダウン変更時の共通処理
         function handleSelectChange(id) {
             removeMarkFromSelected(id);
             calculate();
         }
 
-        // 選択された項目の ◀ マークを画面表示上消す関数
         function removeMarkFromSelected(id) {
             var select = document.getElementById(id);
             if (select.selectedIndex > 0) {
                 var selectedOption = select.options[select.selectedIndex];
-                // 末尾の ◀ マークを消去
                 if (selectedOption.textContent.indexOf(' ◀') !== -1) {
                     selectedOption.textContent = selectedOption.textContent.replace(' ◀', '');
                 }
             }
         }
 
-        // リストを再展開したときのために ◀ マークを復元する関数
         function restoreAllOptions(id) {
             var select = document.getElementById(id);
             var val = parseInt(select.value) || 0;
@@ -358,7 +366,7 @@
 
         function changeValue(id, step, max) {
             var select = document.getElementById(id);
-            restoreAllOptions(id); // 計算前に一度マークを正常化
+            restoreAllOptions(id);
             
             var currentVal = parseInt(select.value) || 0;
             var nextVal = currentVal + step;
@@ -368,7 +376,7 @@
             else if (nextVal < minLimit) { nextVal = minLimit; }
             
             select.value = nextVal;
-            removeMarkFromSelected(id); // 変更後に ◀ を隠す
+            removeMarkFromSelected(id);
             calculate();
         }
 
@@ -528,7 +536,6 @@
             }
         }
 
-        /* ーーー ここから更新検知・自動リロード処理を追加しました ーーー */
         if ('serviceWorker' in navigator) {
             var cacheBuster = '?t=' + new Date().getTime();
             
@@ -536,13 +543,11 @@
             .then(function(reg) { 
                 console.log('Service Worker 登録成功'); 
                 
-                // 新しいバージョン（サービスワーカー）が見つかった場合の処理
                 reg.onupdatefound = function() {
                     var installingWorker = reg.installing;
                     installingWorker.onstatechange = function() {
                         if (installingWorker.state === 'installed') {
                             if (navigator.serviceWorker.controller) {
-                                // 新しいキャッシュのダウンロードが完了したら画面を自動リロード
                                 console.log('最新バージョンを検出しました。画面を自動更新します。');
                                 window.location.reload();
                             }
@@ -552,7 +557,6 @@
             })
             .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
         }
-        /* ーーー ここまで ーーー */
     </script>
 
 </body>
