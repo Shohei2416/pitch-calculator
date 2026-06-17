@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>コンベア計算ツール</title>
+    <title>コンベア能力計算</title>
     
     <link rel="manifest" href="manifest.json">
     
@@ -61,7 +61,7 @@
             display: block;
             padding: 8px 2px;
             border-radius: 8px;
-            font-size: 0.85em;
+            font-size: 0.82em;
             font-weight: bold;
             color: #555;
             cursor: pointer;
@@ -84,7 +84,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* 各入力グループ内のヘッダー（タイトルと入力ミニタブを横並びに） */
+        /* 各入力グループ内のヘッダー */
         .input-group { margin-bottom: 18px; }
         .input-header-row {
             display: flex;
@@ -198,7 +198,20 @@
         }
         .result-label { font-size: 0.9em; color: #555; font-weight: bold; }
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
-        .time-result { font-size: 1.1em; color: #333; display: block; margin-top: 8px; font-weight: 500; }
+        
+        /* 時間結果（ピッチ時間表示エリア）のスタイル */
+        .time-result { 
+            font-size: 1.0em; 
+            color: #444; 
+            display: block; 
+            margin-top: 10px; 
+            font-weight: 500; 
+        }
+        .time-label {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: normal;
+        }
 
         .version-tag {
             position: absolute;
@@ -214,7 +227,7 @@
 <body>
 
     <div class="card">
-        <h2>コンベア計算ツール</h2>
+        <h2>コンベア能力計算</h2>
 
         <div class="mode-selector">
             <div class="mode-option">
@@ -227,7 +240,7 @@
             </div>
             <div class="mode-option">
                 <input type="radio" id="mode3" name="calcMode" value="capacity" onchange="switchMode()">
-                <label for="mode3">能力</label>
+                <label for="mode3">能力 / サイクル</label>
             </div>
         </div>
 
@@ -268,7 +281,7 @@
 
         <div class="input-group" id="group-capacity">
             <div class="input-header-row">
-                <label class="input-label">能力 (個/min):</label>
+                <label class="input-label">能力 / サイクル (個/min・sec):</label>
                 <div class="input-method-tab">
                     <div class="method-option">
                         <input type="radio" id="method-capacity-sel" name="method-capacity" value="select" checked onchange="toggleInputMethod('capacity')">
@@ -348,7 +361,7 @@
             <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v10.7</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v11.1</div>
     </div>
 
     <script>
@@ -369,7 +382,6 @@
             createDefaultOptions(pitchSelect);
             createDefaultOptions(timeSelect);
 
-            // 各種データの生成
             for (var j = 1; j <= 100; j++) {
                 var option = document.createElement('option');
                 option.value = j; 
@@ -416,7 +428,6 @@
             calculate();
         };
 
-        // 入力方式（選択 vs 手入力）の表示切り替え
         function toggleInputMethod(id) {
             var method = document.querySelector('input[name="method-' + id + '"]:checked').value;
             var rowSelect = document.getElementById('row-select-' + id);
@@ -465,7 +476,6 @@
             }
         }
 
-        // 現在のアクティブな入力値を取得する関数
         function getInputValue(id) {
             var method = document.querySelector('input[name="method-' + id + '"]:checked').value;
             if (method === 'manual') {
@@ -486,7 +496,6 @@
             restoreAllOptions(id);
             select.value = nextVal;
             
-            // もし選択肢にない中途半端な数値になった場合は、自動で手入力モードへ切り替える親切設計
             if (select.value === "" || select.value === "0") {
                 document.getElementById('method-' + id + '-man').checked = true;
                 document.getElementById('manual-' + id).value = nextVal;
@@ -550,7 +559,7 @@
                 tabArea.style.display = 'flex';
                 tabLabelStd.textContent = "速度・ピッチから";
                 tabLabelMsec.textContent = "間隔(msec)から";
-                resLabel.textContent = "計算された能力";
+                resLabel.textContent = "計算された能力 / サイクル";
             }
 
             switchUnit();
@@ -649,7 +658,8 @@
                     var totalSeconds = 60 / capValue;
                     var msec = Math.round(totalSeconds * 1000);
                     var sec = totalSeconds.toFixed(3);
-                    timeAnsSpan.textContent = msec + "msec(" + sec + "sec)";
+                    // 時計の絵文字（⏱️）を削除
+                    timeAnsSpan.innerHTML = '<span class="time-label">ピッチ時間：</span>' + msec + "msec (" + sec + "sec)";
                     timeAnsSpan.style.display = 'block';
                 }
             }
