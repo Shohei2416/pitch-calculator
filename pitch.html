@@ -240,8 +240,7 @@
             </div>
             <div class="mode-option">
                 <input type="radio" id="mode3" name="calcMode" value="capacity" onchange="switchMode()">
-                <label for="mode3">能力 / サイクル</label>
-            </div>
+                <label for="mode3">能力</label> </div>
         </div>
 
         <div class="unit-tab-selector" id="unit-tab-area" style="display: none;">
@@ -281,8 +280,7 @@
 
         <div class="input-group" id="group-capacity">
             <div class="input-header-row">
-                <label class="input-label">能力 / サイクル (個/min・sec):</label>
-                <div class="input-method-tab">
+                <label class="input-label">能力 (個/min):</label> <div class="input-method-tab">
                     <div class="method-option">
                         <input type="radio" id="method-capacity-sel" name="method-capacity" value="select" checked onchange="toggleInputMethod('capacity')">
                         <label for="method-capacity-sel">選択</label>
@@ -361,7 +359,7 @@
             <span id="time-ans" class="time-result" style="display: none;"></span>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v11.1</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v11.2</div>
     </div>
 
     <script>
@@ -559,8 +557,7 @@
                 tabArea.style.display = 'flex';
                 tabLabelStd.textContent = "速度・ピッチから";
                 tabLabelMsec.textContent = "間隔(msec)から";
-                resLabel.textContent = "計算された能力 / サイクル";
-            }
+                resLabel.textContent = "計算された能力"; }
 
             switchUnit();
         }
@@ -658,7 +655,6 @@
                     var totalSeconds = 60 / capValue;
                     var msec = Math.round(totalSeconds * 1000);
                     var sec = totalSeconds.toFixed(3);
-                    // 時計の絵文字（⏱️）を削除
                     timeAnsSpan.innerHTML = '<span class="time-label">ピッチ時間：</span>' + msec + "msec (" + sec + "sec)";
                     timeAnsSpan.style.display = 'block';
                 }
