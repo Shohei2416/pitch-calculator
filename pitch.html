@@ -390,7 +390,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v12.5</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v12.6</div>
     </div>
 
     <script>
@@ -440,10 +440,8 @@
                 option.textContent = (t % 500 === 0) ? t + " ◀" : t;
                 selects.timeInput.appendChild(option);
             }
-            // 【変更】1mm刻みで1から300まで生成
             for (var l = 1; l <= 300; l += 1) {
                 var option = document.createElement('option'); option.value = l; 
-                // 目印（◀）は、10mm単位、100mm単位、および最初の1に付与
                 option.textContent = (l === 1 || l % 10 === 0) ? l + " ◀" : l;
                 selects.length.appendChild(option);
             }
@@ -510,7 +508,6 @@
                 } else if (id === 'timeInput') {
                     if (v % 500 === 0) { if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; } }
                 } else if (id === 'length') {
-                    // 【変更】再表示時の目印条件を生成時と同期
                     if (v === 1 || v % 10 === 0) { if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; } }
                 }
             }
@@ -671,10 +668,9 @@
             displayTimeResults(calcCapacity, calcSpeed, calcPitch, length);
         }
 
+        // 【変更】msec のみを返すシンプルな関数に変更
         function formatTimeText(msecValue) {
-            var m = Math.round(msecValue);
-            var s = (m / 1000).toFixed(3);
-            return m + ' msec (' + s + ' sec)';
+            return Math.round(msecValue) + ' msec';
         }
 
         function displayTimeResults(capValue, speedValue, pitchValue, lengthValue) {
