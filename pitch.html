@@ -30,7 +30,7 @@
         }
         h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
         
-        /* ラジオボタンエリア（上部モード切り替え）のスタイル */
+        /* ラジオボタンエリア（上部モード切り替え） */
         .mode-selector {
             background-color: #f0f0f2;
             padding: 4px;
@@ -40,13 +40,13 @@
             margin-bottom: 20px;
         }
         
-        /* ミニタブエリアのスタイル（上部基準用） */
+        /* ミニタブエリア */
         .unit-tab-selector {
             display: flex;
             background-color: #e3e3e6;
             padding: 2px;
             border-radius: 6px;
-            max-width: 240px; 
+            max-width: 260px; 
             margin-bottom: 15px;
         }
 
@@ -84,7 +84,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* 各入力グループ内のヘッダー */
+        /* 各入力グループ */
         .input-group { margin-bottom: 18px; }
         .input-header-row {
             display: flex;
@@ -94,7 +94,7 @@
         }
         label.input-label { font-weight: bold; font-size: 0.9em; margin: 0; }
 
-        /* 入力方式切り替え用ミニタブ（各グループ用） */
+        /* 入力方式切り替え用ミニタブ */
         .input-method-tab {
             display: flex;
             background-color: #e3e3e6;
@@ -117,7 +117,6 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
-        /* 左右ボタンとプルダウンを横並びにするスタイル */
         .input-row {
             display: flex;
             gap: 6px; 
@@ -136,7 +135,6 @@
             cursor: pointer;
         }
 
-        /* 手入力用テキストボックス単体のスタイル */
         input.manual-only-box {
             width: 100%;
             padding: 12px 4px;
@@ -152,7 +150,6 @@
             background-color: #fcfdfe;
         }
         
-        /* 調整ボタン（マイナス・プラス）のデザイン */
         .btn-calc-step {
             padding: 12px 0; 
             background-color: #e8f0fe;
@@ -172,7 +169,6 @@
         }
         .btn-calc-step:active { background-color: #d0e0fc; }
 
-        /* リセットボタンのデザイン */
         .btn-reset-container { margin-top: 20px; text-align: right; }
         .btn-reset {
             background-color: #f2f2f7;
@@ -199,18 +195,27 @@
         .result-label { font-size: 0.9em; color: #555; font-weight: bold; }
         .result { font-size: 1.8em; font-weight: bold; color: #1a73e8; display: block; margin-top: 5px; }
         
-        /* 時間結果（ピッチ時間表示エリア）のスタイル */
         .time-result { 
-            font-size: 1.0em; 
+            font-size: 0.95em; 
             color: #444; 
             display: block; 
             margin-top: 10px; 
             font-weight: 500; 
+            text-align: left;
+            padding: 0 5px;
+            line-height: 1.5;
         }
         .time-label {
+            font-size: 0.9em;
+            color: #555;
+            font-weight: bold;
+        }
+        .time-detail {
             font-size: 0.85em;
             color: #666;
-            font-weight: normal;
+            padding-left: 10px;
+            display: block;
+            margin-top: 2px;
         }
 
         .version-tag {
@@ -240,7 +245,8 @@
             </div>
             <div class="mode-option">
                 <input type="radio" id="mode3" name="calcMode" value="capacity" onchange="switchMode()">
-                <label for="mode3">能力</label> </div>
+                <label for="mode3">能力</label>
+            </div>
         </div>
 
         <div class="unit-tab-selector" id="unit-tab-area" style="display: none;">
@@ -250,7 +256,7 @@
             </div>
             <div class="tab-option">
                 <input type="radio" id="unit2" name="inputUnit" value="msec" onchange="switchUnit()">
-                <label for="unit2" id="tab-label-msec">間隔(msec)基準</label>
+                <label for="unit2" id="tab-label-msec">ピッチ時間から指定</label>
             </div>
         </div>
 
@@ -280,7 +286,8 @@
 
         <div class="input-group" id="group-capacity">
             <div class="input-header-row">
-                <label class="input-label">能力 (個/min):</label> <div class="input-method-tab">
+                <label class="input-label">能力 (個/min):</label>
+                <div class="input-method-tab">
                     <div class="method-option">
                         <input type="radio" id="method-capacity-sel" name="method-capacity" value="select" checked onchange="toggleInputMethod('capacity')">
                         <label for="method-capacity-sel">選択</label>
@@ -303,7 +310,7 @@
 
         <div class="input-group" id="group-msec" style="display: none;">
             <div class="input-header-row">
-                <label class="input-label">製品間隔 (msec):</label>
+                <label class="input-label">ピッチ時間 (msec):</label>
                 <div class="input-method-tab">
                     <div class="method-option">
                         <input type="radio" id="method-timeInput-sel" name="method-timeInput" value="select" checked onchange="toggleInputMethod('timeInput')">
@@ -349,6 +356,30 @@
             </div>
         </div>
 
+        <div class="input-group" id="group-length">
+            <div class="input-header-row">
+                <label class="input-label">製品長 / ワーク長 (mm):</label>
+                <div class="input-method-tab">
+                    <div class="method-option">
+                        <input type="radio" id="method-length-sel" name="method-length" value="select" checked onchange="toggleInputMethod('length')">
+                        <label for="method-length-sel">選択</label>
+                    </div>
+                    <div class="method-option">
+                        <input type="radio" id="method-length-man" name="method-length" value="manual" onchange="toggleInputMethod('length')">
+                        <label for="method-length-man">手入力</label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-row" id="row-select-length">
+                <button class="btn-calc-step" onclick="changeValue('length', -10, 300)">-10</button>
+                <select id="length" onchange="handleSelectChange('length')"></select>
+                <button class="btn-calc-step" onclick="changeValue('length', 10, 300)">+10</button>
+            </div>
+            <div id="row-manual-length" style="display: none;">
+                <input type="number" id="manual-length" class="manual-only-box" placeholder="数値を直接入力(省略時は0)" oninput="calculate()">
+            </div>
+        </div>
+
         <div class="btn-reset-container">
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
         </div>
@@ -356,59 +387,71 @@
         <div class="result-area">
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
-            <span id="time-ans" class="time-result" style="display: none;"></span>
+            <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v11.2</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v12.5</div>
     </div>
 
     <script>
         window.onload = function() {
-            var capacitySelect = document.getElementById('capacity');
-            var speedSelect = document.getElementById('speed');
-            var pitchSelect = document.getElementById('pitch');
-            var timeSelect = document.getElementById('timeInput');
+            var selects = {
+                capacity: document.getElementById('capacity'),
+                speed: document.getElementById('speed'),
+                pitch: document.getElementById('pitch'),
+                timeInput: document.getElementById('timeInput'),
+                length: document.getElementById('length')
+            };
 
-            var createDefaultOptions = function(selectObj) {
+            var createDefaultOptions = function(selectObj, isLength) {
                 var opt0 = document.createElement('option');
-                opt0.value = 0; opt0.textContent = "-- 選択してください --";
+                opt0.value = 0;
+                if (isLength) {
+                    opt0.textContent = "0 (考慮しない)";
+                } else {
+                    opt0.textContent = "-- 選択してください --";
+                }
                 selectObj.appendChild(opt0);
             };
 
-            createDefaultOptions(speedSelect);
-            createDefaultOptions(capacitySelect);
-            createDefaultOptions(pitchSelect);
-            createDefaultOptions(timeSelect);
+            createDefaultOptions(selects.speed, false);
+            createDefaultOptions(selects.capacity, false);
+            createDefaultOptions(selects.pitch, false);
+            createDefaultOptions(selects.timeInput, false);
+            createDefaultOptions(selects.length, true);
 
             for (var j = 1; j <= 100; j++) {
-                var option = document.createElement('option');
-                option.value = j; 
+                var option = document.createElement('option'); option.value = j; 
                 option.textContent = (j === 1 || j % 10 === 0) ? j + " ◀" : j;
-                speedSelect.appendChild(option);
+                selects.speed.appendChild(option);
             }
             for (var i = 1; i <= 300; i++) {
-                var option = document.createElement('option');
-                option.value = i; 
+                var option = document.createElement('option'); option.value = i; 
                 option.textContent = (i === 1 || i % 10 === 0) ? i + " ◀" : i;
-                capacitySelect.appendChild(option);
+                selects.capacity.appendChild(option);
             }
             for (var k = 1; k <= 1000; k++) {
-                var option = document.createElement('option');
-                option.value = k; 
+                var option = document.createElement('option'); option.value = k; 
                 option.textContent = (k === 1 || k % 10 === 0) ? k + " ◀" : k;
-                pitchSelect.appendChild(option);
+                selects.pitch.appendChild(option);
             }
             for (var t = 50; t <= 5000; t += 50) {
-                var option = document.createElement('option');
-                option.value = t; 
+                var option = document.createElement('option'); option.value = t; 
                 option.textContent = (t % 500 === 0) ? t + " ◀" : t;
-                timeSelect.appendChild(option);
+                selects.timeInput.appendChild(option);
+            }
+            // 【変更】1mm刻みで1から300まで生成
+            for (var l = 1; l <= 300; l += 1) {
+                var option = document.createElement('option'); option.value = l; 
+                // 目印（◀）は、10mm単位、100mm単位、および最初の1に付与
+                option.textContent = (l === 1 || l % 10 === 0) ? l + " ◀" : l;
+                selects.length.appendChild(option);
             }
 
-            speedSelect.value = 0; capacitySelect.value = 0; pitchSelect.value = 0; timeSelect.value = 0;
+            Object.values(selects).forEach(s => s.value = 0);
 
-            ['speed', 'capacity', 'pitch', 'timeInput'].forEach(function(id) {
-                var sel = document.getElementById(id);
+            Object.keys(selects).forEach(function(id) {
+                var sel = selects[id];
                 sel.addEventListener('focus', function() { restoreAllOptions(id); });
                 sel.addEventListener('blur', function() { removeMarkFromSelected(id); });
             });
@@ -463,13 +506,12 @@
                 var opt = select.options[i];
                 var v = parseInt(opt.value);
                 if (id === 'speed' || id === 'capacity' || id === 'pitch') {
-                    if (v === 1 || v % 10 === 0) {
-                        if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; }
-                    }
+                    if (v === 1 || v % 10 === 0) { if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; } }
                 } else if (id === 'timeInput') {
-                    if (v % 500 === 0) {
-                        if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; }
-                    }
+                    if (v % 500 === 0) { if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; } }
+                } else if (id === 'length') {
+                    // 【変更】再表示時の目印条件を生成時と同期
+                    if (v === 1 || v % 10 === 0) { if (opt.textContent.indexOf(' ◀') === -1) { opt.textContent = v + " ◀"; } }
                 }
             }
         }
@@ -496,7 +538,7 @@
             
             if (select.value === "" || select.value === "0") {
                 document.getElementById('method-' + id + '-man').checked = true;
-                document.getElementById('manual-' + id).value = nextVal;
+                document.getElementById('manual-' + id).value = nextVal === 0 ? "" : nextVal;
                 toggleInputMethod(id);
             } else {
                 removeMarkFromSelected(id);
@@ -516,23 +558,11 @@
                 restoreAllOptions(id);
             };
 
-            if (mode === 'pitch') {
-                resetGroup('speed');
-                resetGroup('capacity');
-            } 
-            else if (mode === 'speed') {
-                resetGroup('pitch');
-                if (unit === 'standard') { resetGroup('capacity'); } 
-                else { resetGroup('timeInput'); }
-            } 
-            else if (mode === 'capacity') {
-                if (unit === 'standard') {
-                    resetGroup('speed');
-                    resetGroup('pitch');
-                } else {
-                    resetGroup('timeInput');
-                }
-            }
+            resetGroup('length');
+
+            if (mode === 'pitch') { resetGroup('speed'); resetGroup('capacity'); } 
+            else if (mode === 'speed') { resetGroup('pitch'); if (unit === 'standard') { resetGroup('capacity'); } else { resetGroup('timeInput'); } } 
+            else if (mode === 'capacity') { if (unit === 'standard') { resetGroup('speed'); resetGroup('pitch'); } else { resetGroup('timeInput'); } }
             calculate();
         }
 
@@ -545,19 +575,9 @@
 
             document.getElementById('unit1').checked = true;
 
-            if (mode === 'pitch') {
-                tabArea.style.display = 'none';
-                resLabel.textContent = "計算されたピッチ";
-            } else if (mode === 'speed') {
-                tabArea.style.display = 'flex';
-                tabLabelStd.textContent = "能力から指定";
-                tabLabelMsec.textContent = "間隔(msec)から指定";
-                resLabel.textContent = "計算されたベルト速度";
-            } else if (mode === 'capacity') {
-                tabArea.style.display = 'flex';
-                tabLabelStd.textContent = "速度・ピッチから";
-                tabLabelMsec.textContent = "間隔(msec)から";
-                resLabel.textContent = "計算された能力"; }
+            if (mode === 'pitch') { tabArea.style.display = 'none'; resLabel.textContent = "計算されたピッチ"; } 
+            else if (mode === 'speed') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "能力から指定"; tabLabelMsec.textContent = "ピッチ時間から指定"; resLabel.textContent = "計算されたベルト速度"; } 
+            else if (mode === 'capacity') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "速度・ピッチから"; tabLabelMsec.textContent = "ピッチ時間から"; resLabel.textContent = "計算された能力"; }
 
             switchUnit();
         }
@@ -566,32 +586,34 @@
             var mode = document.querySelector('input[name="calcMode"]:checked').value;
             var unit = document.querySelector('input[name="inputUnit"]:checked').value;
             
-            var gSpeed = document.getElementById('group-speed');
-            var gCapacity = document.getElementById('group-capacity');
-            var gMsec = document.getElementById('group-msec');
-            var gPitch = document.getElementById('group-pitch');
+            var groups = {
+                speed: document.getElementById('group-speed'),
+                capacity: document.getElementById('group-capacity'),
+                msec: document.getElementById('group-msec'),
+                pitch: document.getElementById('group-pitch'),
+                length: document.getElementById('group-length')
+            };
 
-            gSpeed.style.display = 'none';
-            gCapacity.style.display = 'none';
-            gMsec.style.display = 'none';
-            gPitch.style.display = 'none';
+            Object.values(groups).forEach(g => g.style.display = 'none');
 
-            if (mode === 'pitch') {
-                gSpeed.style.display = 'block';
-                gCapacity.style.display = 'block';
+            groups.length.style.display = 'block';
+
+            if (mode === 'pitch') { 
+                groups.speed.style.display = 'block'; 
+                groups.capacity.style.display = 'block'; 
             } 
-            else if (mode === 'speed') {
-                gPitch.style.display = 'block'; 
-                if (unit === 'standard') { gCapacity.style.display = 'block'; } 
-                else { gMsec.style.display = 'block'; }
+            else if (mode === 'speed') { 
+                groups.pitch.style.display = 'block'; 
+                if (unit === 'standard') { groups.capacity.style.display = 'block'; } else { groups.msec.style.display = 'block'; } 
             } 
-            else if (mode === 'capacity') {
-                if (unit === 'standard') {
-                    gSpeed.style.display = 'block'; 
-                    gPitch.style.display = 'block';
-                } else {
-                    gMsec.style.display = 'block'; 
-                }
+            else if (mode === 'capacity') { 
+                if (unit === 'standard') { 
+                    groups.speed.style.display = 'block'; 
+                    groups.pitch.style.display = 'block'; 
+                } else { 
+                    groups.msec.style.display = 'block'; 
+                    groups.length.style.display = 'none'; 
+                } 
             }
 
             calculate();
@@ -605,80 +627,94 @@
             var speed = getInputValue('speed');
             var pitch = getInputValue('pitch');
             var timeInput = getInputValue('timeInput');
+            var length = getInputValue('length');
             
             var ansSpan = document.getElementById('ans');
             var timeAnsSpan = document.getElementById('time-ans');
 
             timeAnsSpan.style.display = 'none';
 
-            if (mode === 'pitch' && (capacity <= 0 || speed <= 0)) {
-                ansSpan.textContent = "0.0 mm"; return;
-            }
+            if (mode === 'pitch' && (capacity <= 0 || speed <= 0)) { ansSpan.textContent = "0.0 mm"; return; }
             if (mode === 'speed') {
                 if (unit === 'standard' && capacity <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
                 if (unit === 'msec' && timeInput <= 0) { ansSpan.textContent = "0.0 m/min"; return; }
             }
-            if (mode === 'capacity' && unit === 'standard' && (speed <= 0 || pitch <= 0)) {
-                ansSpan.textContent = "0.0 個/min"; return;
-            }
+            if (mode === 'capacity' && unit === 'standard' && (speed <= 0 || pitch <= 0)) { ansSpan.textContent = "0.0 個/min"; return; }
 
             if (mode === 'capacity' && unit === 'msec') {
                 if (timeInput <= 0) { ansSpan.textContent = "0.0 個/min"; return; }
                 var calculatedCapacity = 60 / (timeInput / 1000);
                 ansSpan.textContent = calculatedCapacity.toFixed(1) + " 個/min";
-                displayTimeInterval(calculatedCapacity);
+                displayTimeResults(calculatedCapacity, 0, 0, 0);
                 return;
             }
 
+            var calcPitch = pitch;
+            var calcSpeed = speed;
+            var calcCapacity = capacity;
+
             if (mode === 'speed' && unit === 'msec' && timeInput > 0) {
-                capacity = 60 / (timeInput / 1000);
+                calcCapacity = 60 / (timeInput / 1000);
             }
 
             if (mode === 'pitch') {
-                var resPitch = (speed * 1000) / capacity;
-                ansSpan.textContent = resPitch.toFixed(1) + " mm";
-                displayTimeInterval(capacity);
-
+                calcPitch = (calcSpeed * 1000) / calcCapacity;
+                ansSpan.textContent = calcPitch.toFixed(1) + " mm";
             } else if (mode === 'speed') {
-                var resSpeed = (capacity * pitch) / 1000;
-                ansSpan.textContent = resSpeed.toFixed(1) + " m/min";
-                displayTimeInterval(capacity);
-
+                calcSpeed = (calcCapacity * calcPitch) / 1000;
+                ansSpan.textContent = calcSpeed.toFixed(1) + " m/min";
             } else if (mode === 'capacity') {
-                var resCapacity = (speed * 1000) / pitch;
-                ansSpan.textContent = resCapacity.toFixed(1) + " 個/min";
-                displayTimeInterval(resCapacity);
+                calcCapacity = (calcSpeed * 1000) / calcPitch;
+                ansSpan.textContent = calcCapacity.toFixed(1) + " 個/min";
             }
 
-            function displayTimeInterval(capValue) {
-                if (capValue > 0) {
-                    var totalSeconds = 60 / capValue;
-                    var msec = Math.round(totalSeconds * 1000);
-                    var sec = totalSeconds.toFixed(3);
-                    timeAnsSpan.innerHTML = '<span class="time-label">ピッチ時間：</span>' + msec + "msec (" + sec + "sec)";
-                    timeAnsSpan.style.display = 'block';
+            displayTimeResults(calcCapacity, calcSpeed, calcPitch, length);
+        }
+
+        function formatTimeText(msecValue) {
+            var m = Math.round(msecValue);
+            var s = (m / 1000).toFixed(3);
+            return m + ' msec (' + s + ' sec)';
+        }
+
+        function displayTimeResults(capValue, speedValue, pitchValue, lengthValue) {
+            var timeAnsSpan = document.getElementById('time-ans');
+            if (capValue <= 0) return;
+
+            var totalMsec = (60 / capValue) * 1000;
+
+            var html = '<span class="time-label">ピッチ時間：</span>' + formatTimeText(totalMsec);
+
+            if (speedValue > 0 && lengthValue > 0) {
+                var speedMmPerSec = (speedValue * 1000) / 60;
+                var passTimeMsec = (lengthValue / speedMmPerSec) * 1000;
+                var clearTimeMsec = totalMsec - passTimeMsec;
+
+                if (Math.round(clearTimeMsec) < 0) {
+                    html += '<br><span class="time-detail" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</span>';
+                } else {
+                    html += '<span class="time-detail">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
+                    html += '<span class="time-detail">┗ ワーク間隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
                 }
             }
+
+            timeAnsSpan.innerHTML = html;
+            timeAnsSpan.style.display = 'block';
         }
 
         if ('serviceWorker' in navigator) {
             var cacheBuster = '?t=' + new Date().getTime();
             navigator.serviceWorker.register('./sw.js' + cacheBuster)
             .then(function(reg) { 
-                console.log('Service Worker 登録成功'); 
                 reg.onupdatefound = function() {
                     var installingWorker = reg.installing;
                     installingWorker.onstatechange = function() {
-                        if (installingWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                console.log('最新バージョンを検出しました。画面を自動更新します。');
-                                window.location.reload();
-                            }
+                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            window.location.reload();
                         }
                     };
                 };
-            })
-            .catch(function(err) { console.log('Service Worker 登録失敗: ', err); });
+            });
         }
     </script>
 
