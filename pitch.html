@@ -222,7 +222,7 @@
         .time-detail-level2 {
             font-size: 0.85em;
             color: #666;
-            padding-left: 66px;   /* 【確定】2段目（隙間の距離）を右へ強制的にズラす幅 */
+            padding-left: 66px;   /* 2段目（隙間の距離）を右へ強制的にズラす幅 */
             display: block;
             margin-top: 2px;
         }
@@ -261,11 +261,11 @@
         <div class="unit-tab-selector" id="unit-tab-area" style="display: none;">
             <div class="tab-option">
                 <input type="radio" id="unit1" name="inputUnit" value="standard" checked onchange="switchUnit()">
-                <label for="unit1" id="tab-label-std">能力基準</label>
+                <label for="unit1" id="tab-label-std">能力＋ピッチから</label>
             </div>
             <div class="tab-option">
                 <input type="radio" id="unit2" name="inputUnit" value="msec" onchange="switchUnit()">
-                <label for="unit2" id="tab-label-msec">ピッチ時間から指定</label>
+                <label for="unit2" id="tab-label-msec">ピッチ時間から</label>
             </div>
         </div>
 
@@ -399,7 +399,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.4</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.7</div>
     </div>
 
     <script>
@@ -463,15 +463,7 @@
                 sel.addEventListener('blur', function() { removeMarkFromSelected(id); });
             });
 
-            var buttons = document.querySelectorAll('.btn-calc-step, .btn-reset');
-            buttons.forEach(function(btn) {
-                btn.addEventListener('touchend', function(e) {
-                    var now = new Date().getTime();
-                    var lastTouch = btn.getAttribute('data-last-touch') || 0;
-                    if (now - lastTouch < 300) { e.preventDefault(); }
-                    btn.setAttribute('data-last-touch', now);
-                }, { passive: false });
-            });
+            /* 【変更】iPhoneでの高速連打を妨害していた JavaScript 側の 300ms 待機処理（touchendイベント制限）を丸ごと削除しました */
 
             calculate();
         };
@@ -582,8 +574,8 @@
             document.getElementById('unit1').checked = true;
 
             if (mode === 'pitch') { tabArea.style.display = 'none'; resLabel.textContent = "計算されたピッチ"; } 
-            else if (mode === 'speed') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "能力から指定"; tabLabelMsec.textContent = "ピッチ時間から指定"; resLabel.textContent = "計算されたベルト速度"; } 
-            else if (mode === 'capacity') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "速度・ピッチから"; tabLabelMsec.textContent = "ピッチ時間から"; resLabel.textContent = "計算された能力"; }
+            else if (mode === 'speed') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "能力＋ピッチから"; tabLabelMsec.textContent = "ピッチ時間から"; resLabel.textContent = "計算されたベルト速度"; } 
+            else if (mode === 'capacity') { tabArea.style.display = 'flex'; tabLabelStd.textContent = "速度＋ピッチから"; tabLabelMsec.textContent = "ピッチ時間から"; resLabel.textContent = "計算された能力"; }
 
             switchUnit();
         }
@@ -699,7 +691,6 @@
                 } else {
                     var clearDistanceMm = pitchValue - lengthValue;
                     
-                    /* 【変更】半角スペースを復活させ、インデントのズレ幅を適用 */
                     html += '<span class="time-detail-level1">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
                     html += '<span class="time-detail-level1">┗ ワーク間 隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
                     html += '<span class="time-detail-level2">┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
