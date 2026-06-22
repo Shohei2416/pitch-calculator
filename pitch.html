@@ -211,7 +211,7 @@
             font-weight: bold;
         }
         
-        /* 【変更】デバイスに関わらず確実に位置を固定するインデント設定 */
+        /* デバイスに関わらず確実に位置を固定するインデント設定 */
         .time-detail-level1 {
             font-size: 0.85em;
             color: #666;
@@ -222,7 +222,7 @@
         .time-detail-level2 {
             font-size: 0.85em;
             color: #666;
-            padding-left: 32px;   /* 2段目（隙間の距離）をさらに右へ強制的にズラす幅 */
+            padding-left: 66px;   /* 【確定】2段目（隙間の距離）を右へ強制的にズラす幅 */
             display: block;
             margin-top: 2px;
         }
@@ -399,7 +399,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.3</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.4</div>
     </div>
 
     <script>
@@ -699,9 +699,9 @@
                 } else {
                     var clearDistanceMm = pitchValue - lengthValue;
                     
-                    /* 【変更】CSSクラスを変更し、スペース文字を使用せず確実な固定幅でインデント */
+                    /* 【変更】半角スペースを復活させ、インデントのズレ幅を適用 */
                     html += '<span class="time-detail-level1">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
-                    html += '<span class="time-detail-level1">┗ ワーク間隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
+                    html += '<span class="time-detail-level1">┗ ワーク間 隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
                     html += '<span class="time-detail-level2">┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
                 }
             }
