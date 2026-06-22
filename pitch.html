@@ -210,10 +210,19 @@
             color: #555;
             font-weight: bold;
         }
-        .time-detail {
+        
+        /* 【変更】デバイスに関わらず確実に位置を固定するインデント設定 */
+        .time-detail-level1 {
             font-size: 0.85em;
             color: #666;
-            padding-left: 10px;
+            padding-left: 12px;   /* 1段目のインデント幅 */
+            display: block;
+            margin-top: 2px;
+        }
+        .time-detail-level2 {
+            font-size: 0.85em;
+            color: #666;
+            padding-left: 32px;   /* 2段目（隙間の距離）をさらに右へ強制的にズラす幅 */
             display: block;
             margin-top: 2px;
         }
@@ -390,7 +399,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.2</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.3</div>
     </div>
 
     <script>
@@ -686,13 +695,14 @@
                 var clearTimeMsec = totalMsec - passTimeMsec;
 
                 if (Math.round(clearTimeMsec) < 0) {
-                    html += '<br><span class="time-detail" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</span>';
+                    html += '<br><span class="time-detail-level1" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</span>';
                 } else {
                     var clearDistanceMm = pitchValue - lengthValue;
                     
-                    html += '<span class="time-detail">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
-                    html += '<span class="time-detail">┗ ワーク間隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
-                    html += '<span class="time-detail">&nbsp;┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
+                    /* 【変更】CSSクラスを変更し、スペース文字を使用せず確実な固定幅でインデント */
+                    html += '<span class="time-detail-level1">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
+                    html += '<span class="time-detail-level1">┗ ワーク間隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
+                    html += '<span class="time-detail-level2">┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
                 }
             }
 
