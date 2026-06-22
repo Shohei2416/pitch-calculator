@@ -217,6 +217,11 @@
             display: block;
             margin-top: 2px;
         }
+        /* インデント（4文字分スペース）用の専用スタイル */
+        .indent-4 {
+            display: inline-block;
+            padding-left: 4em;
+        }
 
         .version-tag {
             position: absolute;
@@ -390,7 +395,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v12.6</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.0</div>
     </div>
 
     <script>
@@ -668,7 +673,6 @@
             displayTimeResults(calcCapacity, calcSpeed, calcPitch, length);
         }
 
-        // 【変更】msec のみを返すシンプルな関数に変更
         function formatTimeText(msecValue) {
             return Math.round(msecValue) + ' msec';
         }
@@ -689,8 +693,12 @@
                 if (Math.round(clearTimeMsec) < 0) {
                     html += '<br><span class="time-detail" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</span>';
                 } else {
+                    var clearDistanceMm = pitchValue - lengthValue;
+                    
                     html += '<span class="time-detail">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
                     html += '<span class="time-detail">┗ ワーク間隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
+                    // 【変更】専用スタイル class="indent-4" を適用し、確実に「ワーク間隙間」の4文字分インデントさせました
+                    html += '<span class="time-detail"><span class="indent-4"></span>┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
                 }
             }
 
