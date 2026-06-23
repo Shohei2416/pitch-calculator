@@ -30,7 +30,7 @@
         }
         h2 { margin-top: 0; margin-bottom: 10px; color: #0071e3; font-size: 1.3em; text-align: center; }
         
-        /* 管理ボタン用コンテナ（最上部へ移動） */
+        /* 管理ボタン用コンテナ（最上部） */
         .btn-action-container { 
             margin-bottom: 18px;
             display: flex;
@@ -230,27 +230,34 @@
             font-weight: 500; 
             text-align: left;
             padding: 0 5px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .time-label {
             font-size: 0.9em;
             color: #555;
             font-weight: bold;
         }
-        .time-detail-level1 {
+
+        /* 縦ラインを綺麗に揃えるためのレイアウト用スタイル */
+        .time-detail-row {
+            display: flex;
+            align-items: flex-start;
             font-size: 0.85em;
             color: #666;
-            padding-left: 12px;
-            display: block;
             margin-top: 2px;
         }
-        .time-detail-level2 {
-            font-size: 0.85em;
-            color: #666;
-            padding-left: 24px;
-            display: block;
-            margin-top: 2px;
+        .time-detail-row .indent-space {
+            display: inline-block;
+            flex-shrink: 0;
+            text-align: left;
         }
+        /* レベル1: 1つ目の┗ */
+        .time-detail-row.level1 { padding-left: 12px; }
+        .time-detail-row.level1 .indent-space { width: 16px; }
+
+        /* レベル2: 2つ目の┗（隙間の距離用） 横位置を完全に揃える設定 */
+        .time-detail-row.level2 { padding-left: 67px; }
+        .time-detail-row.level2 .indent-space { width: 16px; letter-spacing: 67px; }
 
         /* 結果記録用ボタンのスタイル */
         .btn-add-record {
@@ -470,7 +477,7 @@
 
         <div class="input-group" id="group-length">
             <div class="input-header-row">
-                <label class="input-label">📏 製品長 / ワーク長 (mm):</label>
+                <label class="input-label">⏹️ 製品長 / ワーク長 (mm):</label>
                 <div class="input-method-tab">
                     <div class="method-option">
                         <input type="radio" id="method-length-sel" name="method-length" value="select" checked onchange="toggleInputMethod('length')">
@@ -514,7 +521,7 @@
                             <th>🔄 能力<br>(個/min)</th>
                             <th>⏱️ 時間<br>(msec)</th>
                             <th>↔️ ピッチ<br>(mm)</th>
-                            <th>📏 ワーク長<br>(mm)</th>
+                            <th>⏹️ ワーク長<br>(mm)</th>
                             <th>計算結果</th>
                         </tr>
                     </thead>
@@ -524,7 +531,7 @@
             </div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v15.5</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v16.1</div>
     </div>
 
     <script>
@@ -807,6 +814,7 @@
 
             var totalMsec = (60 / capValue) * 1000;
 
+            // トップ項目のみ時計アイコンを残す
             var html = '<span class="time-label">⏱️ ピッチ時間：</span>' + formatTimeText(totalMsec);
 
             if (speedValue > 0 && lengthValue > 0) {
@@ -815,13 +823,14 @@
                 var clearTimeMsec = totalMsec - passTimeMsec;
 
                 if (Math.round(clearTimeMsec) < 0) {
-                    html += '<br><span class="time-detail-level1" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</span>';
+                    html += '<br><div class="time-detail-row level1" style="color:#ff3b30; font-weight:bold;">⚠️ 製品長がピッチを超過（製品が重なります）</div>';
                 } else {
                     var clearDistanceMm = pitchValue - lengthValue;
                     
-                    html += '<span class="time-detail-level1">┗ ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span>';
-                    html += '<span class="time-detail-level1">┗ ワーク間 隙間の時間：' + formatTimeText(clearTimeMsec) + '</span>';
-                    html += '<span class="time-detail-level2">┗ 隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span>';
+                    // アイコンなし、ユーザー指定のインデント幅設定で縦を完全に揃える構造
+                    html += '<div class="time-detail-row level1"><span class="indent-space">┗</span><span>ワーク単体の通過時間：' + formatTimeText(passTimeMsec) + '</span></div>';
+                    html += '<div class="time-detail-row level1"><span class="indent-space">┗</span><span>ワーク間 隙間の時間：' + formatTimeText(clearTimeMsec) + '</span></div>';
+                    html += '<div class="time-detail-row level2"><span class="indent-space">┗</span><span>隙間の距離：' + clearDistanceMm.toFixed(1) + ' mm</span></div>';
                 }
             }
 
@@ -869,8 +878,6 @@
             var tdPTime = '<td>' + pTimeStr + '</td>';
             var tdPitch = '<td>' + (pitch > 0 ? pitch : '-') + '</td>';
             var tdLength = '<td>' + (length > 0 ? length : '0') + '</td>';
-            
-            /* 計算結果のセルに該当モードのアイコンを付与 */
             var tdAns = '<td class="highlight-res">' + modeIcon + ans + '</td>';
 
             row.innerHTML = tdMode + tdSpeed + tdCapacity + tdPTime + tdPitch + tdLength + tdAns;
