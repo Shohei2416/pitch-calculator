@@ -23,7 +23,7 @@
             padding: 20px 15px 25px 15px; 
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            max-width: 400px;
+            max-width: 420px; /* テーブル追加に伴い横幅を少しだけ広げました */
             margin: 0 auto;
             box-sizing: border-box; 
             position: relative; 
@@ -171,7 +171,7 @@
 
         /* ボタン並び替え用コンテナ */
         .btn-action-container { 
-            margin-top: 20px; 
+            margin-top: 15px; 
             display: flex;
             justify-content: flex-end;
             gap: 10px;
@@ -191,7 +191,6 @@
         }
         .btn-reset:active { background-color: #e5e5ea; }
 
-        /* 新規追加：アプリを更新ボタンのスタイル */
         .btn-update {
             background-color: #fff;
             color: #0071e3; 
@@ -207,8 +206,9 @@
         }
         .btn-update:active { background-color: #e8f0fe; }
         
+        /* 結果表示エリア */
         .result-area { 
-            margin-top: 20px; 
+            margin-top: 18px; 
             background-color: #e8f0fe; 
             padding: 15px; 
             border-radius: 8px;
@@ -233,21 +233,90 @@
             font-weight: bold;
         }
         
-        /* デバイスに関わらず確実に位置を固定するインデント設定 */
         .time-detail-level1 {
             font-size: 0.85em;
             color: #666;
-            padding-left: 12px;   /* 1段目のインデント幅 */
+            padding-left: 12px;
             display: block;
             margin-top: 2px;
         }
         .time-detail-level2 {
             font-size: 0.85em;
             color: #666;
-            padding-left: 66px;   /* 2段目（隙間の距離）を右へ強制的にズラす幅 */
+            padding-left: 66px;
             display: block;
             margin-top: 2px;
         }
+
+        /* 新規追加：結果記録用ボタンのスタイル */
+        .btn-add-record {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 0;
+            background-color: #34c759;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .btn-add-record:active { background-color: #28a745; }
+
+        /* 新規追加：一覧表エリアのスタイル */
+        .table-area {
+            margin-top: 25px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+            display: none; /* 初期状態は非表示（データ追加で表示） */
+        }
+        .table-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .table-title { font-size: 0.95em; font-weight: bold; color: #333; }
+        .btn-clear-table {
+            background: none;
+            border: none;
+            color: #ff3b30;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* スマホからはみ出た場合スクロール可能に */
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #e5e5ea;
+            border-radius: 6px;
+        }
+        table.list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: center;
+            background: #fafafa;
+            min-width: 440px; /* 最低限の幅を確保 */
+        }
+        table.list-table th {
+            background-color: #f2f2f7;
+            color: #666;
+            font-weight: bold;
+            padding: 6px 4px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        table.list-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #e5e5ea;
+            color: #333;
+            background: #fff;
+        }
+        table.list-table tr:last-child td { border-bottom: none; }
+        .highlight-res { font-weight: bold; color: #1a73e8; background-color: #f0f7ff; }
 
         .version-tag {
             position: absolute;
@@ -420,9 +489,35 @@
             <span id="res-label" class="result-label">計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
             <div id="time-ans" class="time-result" style="display: none;"></div>
+            
+            <button class="btn-add-record" onclick="addCurrentResultToTable()">結果を一覧に追加</button>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.8</div>
+        <div class="table-area" id="list-table-area">
+            <div class="table-title-row">
+                <span class="table-title">📋 比較一覧表（一時保存）</span>
+                <button class="btn-clear-table" onclick="clearResultTable()">一覧をクリア</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>モード</th>
+                            <th>速度<br>(m/min)</th>
+                            <th>能力<br>(個/min)</th>
+                            <th>ピッチ時間<br>(msec)</th>
+                            <th>ピッチ<br>(mm)</th>
+                            <th>ワーク長<br>(mm)</th>
+                            <th>計算結果</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.9</div>
     </div>
 
     <script>
@@ -489,10 +584,8 @@
             calculate();
         };
 
-        /* 【変更】手動で最新のバージョン空間を強制リロード（キャッシュバイパス）する処理 */
         function forceAppUpdate() {
             var currentUrl = window.location.origin + window.location.pathname;
-            // タイムスタンプを付与することで確実にサーバーの最新ファイルを呼び出す
             window.location.href = currentUrl + '?v=' + new Date().getTime();
         }
 
@@ -727,6 +820,64 @@
 
             timeAnsSpan.innerHTML = html;
             timeAnsSpan.style.display = 'block';
+        }
+
+        /* 【新規追加】現在のパラメータと結果を一覧表へ書き出す処理 */
+        function addCurrentResultToTable() {
+            var mode = document.querySelector('input[name="calcMode"]:checked').value;
+            var unit = document.querySelector('input[name="inputUnit"]:checked').value;
+            
+            var capacity = getInputValue('capacity');
+            var speed = getInputValue('speed');
+            var pitch = getInputValue('pitch');
+            var timeInput = getInputValue('timeInput');
+            var length = getInputValue('length');
+            var ans = document.getElementById('ans').textContent;
+
+            // 未入力状態で追加されるのを防ぐ
+            if (ans === "0.0 mm" || ans === "0.0 m/min" || ans === "0.0 個/min") {
+                alert("数値を入力・計算してから追加してください。");
+                return;
+            }
+
+            var modeText = "";
+            if (mode === 'pitch') modeText = "ピッチ";
+            if (mode === 'speed') modeText = "速度";
+            if (mode === 'capacity') modeText = "能力";
+
+            // 計算ベースの補正（ピッチ時間など）
+            var pTimeStr = "-";
+            if (capacity > 0) {
+                pTimeStr = Math.round((60 / capacity) * 1000);
+            } else if (mode === 'capacity' && unit === 'msec' && timeInput > 0) {
+                pTimeStr = Math.round(timeInput);
+            } else if (mode === 'speed' && unit === 'msec' && timeInput > 0) {
+                pTimeStr = Math.round(timeInput);
+            }
+
+            var tbody = document.getElementById('table-body');
+            var row = document.createElement('tr');
+
+            // 各セルのテキスト（0の場合はわかりやすくハイフンか0表示）
+            var tdMode = '<td>' + modeText + '</td>';
+            var tdSpeed = '<td>' + (speed > 0 ? speed : '-') + '</td>';
+            var tdCapacity = '<td>' + (capacity > 0 ? capacity : '-') + '</td>';
+            var tdPTime = '<td>' + pTimeStr + '</td>';
+            var tdPitch = '<td>' + (pitch > 0 ? pitch : '-') + '</td>';
+            var tdLength = '<td>' + (length > 0 ? length : '0') + '</td>';
+            var tdAns = '<td class="highlight-res">' + ans + '</td>';
+
+            row.innerHTML = tdMode + tdSpeed + tdCapacity + tdPTime + tdPitch + tdLength + tdAns;
+            tbody.appendChild(row);
+
+            // テーブルエリアを表示
+            document.getElementById('list-table-area').style.display = 'block';
+        }
+
+        /* 【新規追加】一時テーブルを空にする処理 */
+        function clearResultTable() {
+            document.getElementById('table-body').innerHTML = "";
+            document.getElementById('list-table-area').style.display = 'none';
         }
 
         if ('serviceWorker' in navigator) {
