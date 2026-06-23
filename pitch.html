@@ -169,12 +169,18 @@
         }
         .btn-calc-step:active { background-color: #d0e0fc; }
 
-        .btn-reset-container { margin-top: 20px; text-align: right; }
+        /* ボタン並び替え用コンテナ */
+        .btn-action-container { 
+            margin-top: 20px; 
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
         .btn-reset {
             background-color: #f2f2f7;
             color: #ff3b30; 
             border: 1px solid #d1d1d6;
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: bold;
@@ -184,6 +190,22 @@
             user-select: none;
         }
         .btn-reset:active { background-color: #e5e5ea; }
+
+        /* 新規追加：アプリを更新ボタンのスタイル */
+        .btn-update {
+            background-color: #fff;
+            color: #0071e3; 
+            border: 1px solid #0071e3;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .btn-update:active { background-color: #e8f0fe; }
         
         .result-area { 
             margin-top: 20px; 
@@ -389,7 +411,8 @@
             </div>
         </div>
 
-        <div class="btn-reset-container">
+        <div class="btn-action-container">
+            <button class="btn-update" onclick="forceAppUpdate()">アプリを更新</button>
             <button class="btn-reset" onclick="resetValues()">値をリセット</button>
         </div>
 
@@ -399,7 +422,7 @@
             <div id="time-ans" class="time-result" style="display: none;"></div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.7</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v13.8</div>
     </div>
 
     <script>
@@ -463,10 +486,15 @@
                 sel.addEventListener('blur', function() { removeMarkFromSelected(id); });
             });
 
-            /* 【変更】iPhoneでの高速連打を妨害していた JavaScript 側の 300ms 待機処理（touchendイベント制限）を丸ごと削除しました */
-
             calculate();
         };
+
+        /* 【変更】手動で最新のバージョン空間を強制リロード（キャッシュバイパス）する処理 */
+        function forceAppUpdate() {
+            var currentUrl = window.location.origin + window.location.pathname;
+            // タイムスタンプを付与することで確実にサーバーの最新ファイルを呼び出す
+            window.location.href = currentUrl + '?v=' + new Date().getTime();
+        }
 
         function toggleInputMethod(id) {
             var method = document.querySelector('input[name="method-' + id + '"]:checked').value;
