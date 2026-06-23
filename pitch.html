@@ -28,8 +28,47 @@
             box-sizing: border-box; 
             position: relative; 
         }
-        h2 { margin-top: 0; color: #0071e3; font-size: 1.3em; text-align: center; }
+        h2 { margin-top: 0; margin-bottom: 10px; color: #0071e3; font-size: 1.3em; text-align: center; }
         
+        /* 管理ボタン用コンテナ（最上部へ移動） */
+        .btn-action-container { 
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e5ea;
+            padding-bottom: 12px;
+        }
+        .btn-reset {
+            background-color: #f2f2f7;
+            color: #ff3b30; 
+            border: 1px solid #d1d1d6;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .btn-reset:active { background-color: #e5e5ea; }
+
+        .btn-update {
+            background-color: #fff;
+            color: #0071e3; 
+            border: 1px solid #0071e3;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .btn-update:active { background-color: #e8f0fe; }
+
         /* ラジオボタンエリア（上部モード切り替え） */
         .mode-selector {
             background-color: #f0f0f2;
@@ -170,47 +209,10 @@
             border: 1px solid #d1d1d6;
         }
         .btn-calc-step:active { background-color: #e5e5ea; }
-
-        /* ボタン並び替え用コンテナ */
-        .btn-action-container { 
-            margin-top: 15px; 
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        .btn-reset {
-            background-color: #f2f2f7;
-            color: #ff3b30; 
-            border: 1px solid #d1d1d6;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        .btn-reset:active { background-color: #e5e5ea; }
-
-        .btn-update {
-            background-color: #fff;
-            color: #0071e3; 
-            border: 1px solid #0071e3;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        .btn-update:active { background-color: #e8f0fe; }
         
         /* 結果表示エリア */
         .result-area { 
-            margin-top: 18px; 
+            margin-top: 20px; 
             background-color: #f2f2f7; 
             padding: 15px; 
             border-radius: 8px;
@@ -253,8 +255,8 @@
         /* 結果記録用ボタンのスタイル */
         .btn-add-record {
             width: 100%;
-            margin-top: 10px;
-            padding: 10px 0;
+            margin-top: 12px;
+            padding: 11px 0;
             background-color: #34c759;
             color: white;
             border: none;
@@ -302,7 +304,7 @@
             font-size: 11px;
             text-align: center;
             background: #fafafa;
-            min-width: 440px; 
+            min-width: 450px; 
         }
         table.list-table th {
             color: #333;
@@ -321,7 +323,7 @@
         table.list-table tr:last-child td { border-bottom: none; }
         
         /* 計算結果セルの強調 */
-        .highlight-res { font-weight: bold; color: #0071e3; background-color: #f4f9ff !important; }
+        .highlight-res { font-weight: bold; color: #0071e3; background-color: #f4f9ff !important; text-align: left; padding-left: 8px !important; }
 
         .version-tag {
             position: absolute;
@@ -338,6 +340,11 @@
 
     <div class="card">
         <h2>コンベア能力計算</h2>
+
+        <div class="btn-action-container">
+            <button class="btn-update" onclick="forceAppUpdate()">アプリを更新</button>
+            <button class="btn-reset" onclick="resetValues()">値をリセット</button>
+        </div>
 
         <div class="mode-selector">
             <div class="mode-option">
@@ -485,11 +492,6 @@
             </div>
         </div>
 
-        <div class="btn-action-container">
-            <button class="btn-update" onclick="forceAppUpdate()">アプリを更新</button>
-            <button class="btn-reset" onclick="resetValues()">値をリセット</button>
-        </div>
-
         <div class="result-area">
             <span id="res-label" class="result-label">↔️ 計算されたピッチ</span>
             <span id="ans" class="result">0.0 mm</span>
@@ -522,7 +524,7 @@
             </div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v15.3</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v15.5</div>
     </div>
 
     <script>
@@ -844,9 +846,10 @@
             }
 
             var modeText = "";
-            if (mode === 'pitch') modeText = "↔️ ピッチ";
-            if (mode === 'speed') modeText = "⏩ 速度";
-            if (mode === 'capacity') modeText = "🔄 能力";
+            var modeIcon = "";
+            if (mode === 'pitch') { modeText = "↔️ ピッチ"; modeIcon = "↔️ "; }
+            if (mode === 'speed') { modeText = "⏩ 速度"; modeIcon = "⏩ "; }
+            if (mode === 'capacity') { modeText = "🔄 能力"; modeIcon = "🔄 "; }
 
             var pTimeStr = "-";
             if (capacity > 0) {
@@ -866,7 +869,9 @@
             var tdPTime = '<td>' + pTimeStr + '</td>';
             var tdPitch = '<td>' + (pitch > 0 ? pitch : '-') + '</td>';
             var tdLength = '<td>' + (length > 0 ? length : '0') + '</td>';
-            var tdAns = '<td class="highlight-res">' + ans + '</td>';
+            
+            /* 計算結果のセルに該当モードのアイコンを付与 */
+            var tdAns = '<td class="highlight-res">' + modeIcon + ans + '</td>';
 
             row.innerHTML = tdMode + tdSpeed + tdCapacity + tdPTime + tdPitch + tdLength + tdAns;
             tbody.appendChild(row);
