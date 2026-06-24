@@ -18,16 +18,31 @@
             background-color: #f5f5f7;
             color: #333;
         }
+        
+        /* 基本のカードスタイル（通常の縦画面時は最大幅420px） */
         .card {
             background: #fff;
             padding: 20px 15px 25px 15px; 
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            max-width: 420px;
+            max-width: 420px; 
             margin: 0 auto;
             box-sizing: border-box; 
             position: relative; 
         }
+
+        /* 🔄 横画面（スマホを横に傾けた時）の最適化設定を追加 */
+        @media screen and (orientation: landscape) and (max-width: 932px) {
+            body {
+                padding: 5px; /* 上下の余白を詰めてスクロール量を減らします */
+            }
+            .card {
+                max-width: 100%; /* 横幅の制限を解除して画面いっぱいに広げる */
+                border-radius: 8px; /* 全画面でも少しだけ角丸を残して綺麗に */
+                padding: 15px 15px 20px 15px;
+            }
+        }
+
         h2 { margin-top: 0; margin-bottom: 10px; color: #0071e3; font-size: 1.3em; text-align: center; }
         
         /* 管理ボタン用コンテナ（最上部） */
@@ -531,7 +546,7 @@
             </div>
         </div>
 
-        <div class="version-tag">Powered by Suntechno Co., Ltd. | v16.1</div>
+        <div class="version-tag">Powered by Suntechno Co., Ltd. | v16.2</div>
     </div>
 
     <script>
